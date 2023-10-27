@@ -1,0 +1,3 @@
+see if I can get a setup where a synth will play the note that is sung in
+
+tone.js has fft

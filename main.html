@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+    <title>Vaughn's Instrument</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./js/lib/p5.js"></script>
+    <script src="./js/lib/addons/p5.sound.js"></script>
+</head>
+<body>
+    <h1>
+        Instrument
+    </h1>
+
+    <button id="addTrack">Add Track</button>
+    <button id="remTrack">Remove Track</button>
+
+    <div id="tracks"></div>
+
+    <br>
+
+    <button id="recordAudio">Record Audio</button>
+    <button id="stopButton">Stop Recording</button>
+
+    <div id="audioVisualization">
+        <h3> Intensity vs Frequency</h3>
+        <canvas id="displayVis" height="400" width="16348"></canvas>
+    </div>
+
+
+    <script src="./js/main.js" type="module"></script>
+</body>
