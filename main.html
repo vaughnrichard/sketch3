@@ -3,8 +3,8 @@
     <title>Vaughn's Instrument</title>
     <link rel="stylesheet" type="text/css" href="main.css">
 
-    <script src="./js/lib/p5.js"></script>
-    <script src="./js/lib/addons/p5.sound.js"></script>
+    <!-- <script src="./js/lib/p5.js"></script>
+    <script src="./js/lib/addons/p5.sound.js"></script> -->
 </head>
 <body>
     <h1>
@@ -21,11 +21,19 @@
     <button id="recordAudio">Record Audio</button>
     <button id="stopButton">Stop Recording</button>
 
+    <br>
+
+    <button id="playTestAudio">Test Audio Start</button>
+    <button id="stopTestAudio">Test Audio Stop</button>
+
     <div id="audioVisualization">
         <h3> Intensity vs Frequency</h3>
         <canvas id="displayVis" height="400" width="16348"></canvas>
     </div>
 
-
-    <script src="./js/main.js" type="module"></script>
+    <!-- <script type="module" src="./js/fft.js"></script>
+    <script type="module" src="./js/localAudioFFT.js"></script>
+    <script type="module" src="./js/trackManager.js"></script>
+    <script type="module" src="./js/userAudioFFT.js"></script> -->
+    <script type="module" src="./js/main.js" type="module"></script>
 </body>
