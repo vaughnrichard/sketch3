@@ -1,27 +1,6 @@
 #tracks {
     display: grid;
-    grid-template-columns: 10% 80% 10%;
-    grid-template-rows: 1;
 
-    overflow: auto;
-
-    max-height: 50vh;
-}
-
-/* .trackP {
-    display: grid;
-    grid-template-columns: 10% 80% 10%;
-    grid-template-rows: 1;
-} */
-
-#names {
-    /* text-align: center; */
-    display: grid;
-    justify-content: center;
-    align-items: start;
-
-    grid-template-rows: repeat(auto-fill, 0.5in);
-    grid-gap: 10px;
     overflow: auto;
 
     /* Hide the scrollbar */
@@ -38,13 +17,34 @@
     ::-webkit-scrollbar-thumb {
     background-color: transparent; /* Make the thumb (the moving part) transparent */
     }
+
+    max-height: 50vh;
 }
 
-#music {
+.trackP {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.trackDOM {
+    /* text-align: center; */
+    display: grid;
+
+    grid-template-columns: 10% 70% 15% 5%;
+
+    grid-template-rows: repeat(auto-fill, 0.5in);
+    /* grid-gap: 10px; */
+
+}
+
+.music {
     background-color: rgb(26, 26, 25);
 
-    /* width: 100%; */
-    height: 50vh;
+    height: 100%;
+    width: 100%;
 }
 
 h1 {

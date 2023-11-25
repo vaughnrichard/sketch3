@@ -1,6 +1,6 @@
 /* This file deals with notes */
 
-class note {
+class Note {
     constructor(start, end) {
         this.start = start;
         this.end = end;
@@ -18,12 +18,38 @@ class note {
 
 }
 
-function findNotes(energyData) {
-    let notesArray = null;
+function findNotes(parsedNoteArray) {
+    let notesArray = new Array(Note);
 
     let inNote = false;
+    let currentNote = null;
 
+    for (let i = 0; i < parsedNoteArray.length; i++) {
+        if (parsedNoteArray[i] == 1) {
+            if (!inNote) {
+                currentNote = new Note(i, null);
+                inNote = true;
+            }
+        }
+
+        else {
+            if (inNote) {
+                currentNote.end = i;
+                notesArray.push(currentNote);
+
+                inNote = false;
+                currentNote = null;
+            }
+        }
+    }
+
+    if (currentNote != null) {
+        currentNote.end = parsedNoteArray.length - 1;
+        notesArray.push(currentNote);
+    }
     
 
-    return notesArray
+    return notesArray;
 }
+
+export { Note, findNotes }

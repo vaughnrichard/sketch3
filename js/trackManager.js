@@ -9,30 +9,62 @@ class Track {
 }
 
 const tracksDiv = document.getElementById("tracks");
-const namesDiv = document.getElementById("names");
 const addTrack = document.getElementById("addTrack");
-const remTrack = document.getElementById("remTrack");
+// const remTrack = document.getElementById("remTrack");
 
 /* This function adds a new default track to the tracks Div */
 function addDefTrack() {
-    const track = document.createElement('p');
-    track.className = "trackP";
+  // create div to put in tracks overall div
+  const trackDOM = document.createElement('div');
+  trackDOM.className = 'trackDOM'
 
-    track.innerHTML = '<p class="trackP" contenteditable="true">Instrument</p>'
+  // create the name
+  const trackName = document.createElement('p');
+  trackName.className = "trackP";
 
-    namesDiv.appendChild(track);
+  trackName.innerHTML = '<p class="trackP" contenteditable="true">Instrument</p>';
 
-    return track;
-}
+  // create the musical element
+  const musDiv = document.createElement('div');
+  musDiv.className = 'music';
 
-function removeTrack() {
-  if (namesDiv.children.length == 0) { return; }
-  namesDiv.removeChild(namesDiv.children[namesDiv.children.length - 1]);
+  // create segment for the other functions
+  const miscFunctions = document.createElement('div');
+
+  const volume = document.createElement('input');
+  volume.textContent = 'Volume:';
+  volume.type = 'range';
+
+  const recordButton = document.createElement('button');
+  recordButton.textContent = 'Record'
+
+  miscFunctions.appendChild(volume);
+  miscFunctions.appendChild(recordButton);
+
+  //create remove segment
+  const remTrack = document.createElement('button');
+  // remTrack.innerHTML = '<button class="remTrack">Remove Track</button>';
+  remTrack.textContent = 'Remove Track';
+  remTrack.addEventListener('click', function () {
+    tracksDiv.removeChild(trackDOM);
+  });
+
+  // append elements to the trackDOM
+  trackDOM.appendChild(trackName);
+  trackDOM.appendChild(musDiv);
+  trackDOM.appendChild(miscFunctions);
+  trackDOM.appendChild(remTrack);
+
+  // update style
+  trackDOM.style = trackDOM.style;
+
+  tracksDiv.appendChild(trackDOM);
+
+  return trackDOM;
 }
 
 function initTrack() {
     addTrack.addEventListener("click", addDefTrack);
-    remTrack.addEventListener("click", removeTrack);
 }
 
 export { initTrack }

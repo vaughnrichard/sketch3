@@ -1,5 +1,5 @@
 /** File to Deal with FFT stuff */
-
+import {cleanData, returnNotesArray } from './energyAnalysis.js'
 
 const keepAtPageSize = false;
 // given an array and a canvas, this will draw the FFT over the canvas's dimensions
@@ -34,12 +34,6 @@ function detectPitch(analyzer) {
   
 }
 
-
-function detectNotes(data) {
-
-
-  return 
-}
 
 // store values in here
 var timeDomainArray = new Array();
@@ -87,82 +81,9 @@ function graphTimeDomain(dummy, canvas) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = 'black';
-
-  const max_original = data.reduce((a, b) => Math.max(a, b));
-
-
-  // adjust data so that any insignificant data is forgotten
-  let new_data = data.map(function (val) {
-    const adj = val - (max_original * .25); // a quarter seems to be good for quite places
-    if (adj < 0) {
-      return .1;
-    }
-    return adj;
-  })
-
-  new_data = new_data.map(function (val) {
-    return Math.log2(val)
-  })
-
-  // remove any invalid data points
-  new_data = new_data.filter(function (val) {
-    return val != -Infinity;
-  })
-
-  // const min = new_data.reduce((a, b) => Math.min(a, b));
-
-  let min = Infinity;
-
-  for (let i = 0; i < new_data.length; i++) {
-    if (new_data[i] < min && new_data[i] >= 0) {
-      min = new_data[i];
-    }
-  }
-
-  new_data = new_data.map( function (val) {
-    const adj =  val - min;
-    if (adj < 0) { return 0; }
-
-    return adj;
-  })
-
-  const moving_average_len = 5;
-
-  // with the data cleaned, take a moving average
-  if (new_data.length < moving_average_len) { throw new Error("Given sample was too short. Improve to remove this liability in the future. ")}
-
-  // create a queue for the moving average
-  const ma_queue = new Array(moving_average_len);
-
-  for (let i = 0; i < moving_average_len; i++) {
-    ma_queue[i] = new_data[i]
-  }
-
-  // create two arrays to calculate the moving average and moving variance
-  const ma_array = new Array(new_data.length - moving_average_len);
-  const var_array = new Array(new_data.length - moving_average_len);
-
-  // loop to calcualte the ma / moving var
-  for (let i = 0; i < ma_array.length; i++) {
-    const sum = ma_queue.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    const mean = sum / moving_average_len;
-
-    ma_array[i] = mean;
-
-    let variance = 0;
-    // ma_queue should be moving_average_length
-    for (let j = 0; j < ma_queue.length; j++) {
-      variance += (ma_queue[j] - mean) ** 2;
-    }
-
-    var_array[i] = variance / moving_average_len;
-
-    ma_queue.pop()
-    ma_queue.push(new_data[i + moving_average_len])
-
-  }
-
+  
+  const notesArray = returnNotesArray(timeDomainArray, 'ma');
+  const data_set = cleanData(timeDomainArray, 'ma');
 
   function graphMetric( dataset ) {
     const max = dataset.reduce((a, b) => Math.max(a, b));
@@ -172,22 +93,38 @@ function graphTimeDomain(dummy, canvas) {
       return val / max;
     })
 
-    console.log(dataset)
+    // console.log(dataset)
 
     dataset = dataset.map( function (val) {
 
       return canvas.height * val;
     })
 
+    // initialized to 1 because the first entry is the note object
+    // by my implementation
+    let curNote = 1;
+    console.log(notesArray)
+
     for (let i = 0; i < dataset.length; i++) {
+
+      ctx.fillStyle = 'black';
+      if (curNote < notesArray.length) {
+        if (i >= notesArray[curNote].end) {
+          curNote += 1;
+        }
+
+        else if (i >= notesArray[curNote].start) {
+          // console.log('in here');
+          ctx.fillStyle = 'red';
+        }
+      }
+
       // console.log(dataset[i])
       ctx.fillRect(i * lineWidth , canvas.height, lineWidth, -dataset[i]);
     }
   }
 
-  // graphMetric(new_data);
-  graphMetric(ma_array); // appears to be the best
-  // graphMetric(var_array);
+  graphMetric(timeDomainArray);
   
 }
 
