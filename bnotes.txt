@@ -1,0 +1,11 @@
+
+
+easiest way - spectrogram (fft vs time) (also shows different notes at different time)
+ - trade-off: computationally heavy
+
+other approach - short time fourier transform - (over shorter time) - could be used to pull out singular notes in specific time
+
+wavelets - better for analysis for signals that have shorter and longer term data. good for data computationally
+
+cross-correlation analysis - could also be used to pull out data
+

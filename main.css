@@ -1,12 +1,50 @@
 #tracks {
     display: grid;
-    grid-template-columns: 1;
+    grid-template-columns: 10% 80% 10%;
+    grid-template-rows: 1;
+
+    overflow: auto;
+
+    max-height: 50vh;
 }
 
-.track {
+/* .trackP {
     display: grid;
     grid-template-columns: 10% 80% 10%;
     grid-template-rows: 1;
+} */
+
+#names {
+    /* text-align: center; */
+    display: grid;
+    justify-content: center;
+    align-items: start;
+
+    grid-template-rows: repeat(auto-fill, 0.5in);
+    grid-gap: 10px;
+    overflow: auto;
+
+    /* Hide the scrollbar */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: transparent transparent; /* Firefox */
+
+    /* Hide the scrollbar for other browsers (like Chrome, Safari, and Edge) */
+    /* Please note that this method might not work in future browser versions */
+    /* You might need to use browser-specific prefixes or check for updates */
+    ::-webkit-scrollbar {
+    width: 6px; /* Adjust the width of the scrollbar */
+    }
+
+    ::-webkit-scrollbar-thumb {
+    background-color: transparent; /* Make the thumb (the moving part) transparent */
+    }
+}
+
+#music {
+    background-color: rgb(26, 26, 25);
+
+    /* width: 100%; */
+    height: 50vh;
 }
 
 h1 {
@@ -17,4 +55,9 @@ h3 {
     display: flex;
     justify-content: center; /* Horizontal centering */
     align-items: center; /* Vertical centering */
+}
+
+#displayVis {
+    height: 400px;
+    /* width: 100vw; */
 }

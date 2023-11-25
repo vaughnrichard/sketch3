@@ -1,4 +1,4 @@
-import { graphFFT } from "./fft.js";
+import { graphData, measureSoundEnergy, resetTimeDomain, timeDomainArray } from "./fft.js";
 
 // maybe refer to this example :
 // https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/fftSize
@@ -15,11 +15,17 @@ let mediaRecorder;
 let audioContext;
 
 async function startRecording() {
+  if (recordingOn) { return; }
+
+  recordingOn = true;
+
   let audioChunks = [];
   audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
   const analyzer = audioContext.createAnalyser();
-  analyzer.fftSize = 32768;
+
+  const granularity = 2 ** 11;
+  analyzer.fftSize = granularity;
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   mediaRecorder = new MediaRecorder(stream);
@@ -35,15 +41,38 @@ async function startRecording() {
   };
 
   mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-      console.log(audioBlob.arrayBuffer)
-      const audioUrl = URL.createObjectURL(audioBlob);
+    recordingOn = false;
+    // const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+    // // console.log(audioBlob.arrayBuffer)
+    // const audioUrl = URL.createObjectURL(audioBlob);
 
-      graphFFT(analyzer, displayVis);
+    keepDetecting = false;
+
+    // console.log(analyzer)
+
+    // console.log(timeDomainArray);
+    graphData(displayVis, null, false);
+    // graphTimeDomain(timeDomainArray, displayVis);
+    resetTimeDomain();
   };
 
   mediaRecorder.start();
+
+  let keepDetecting = true;
+
+  function energyCollectionLoop() {
+    if (keepDetecting) {
+      // timeDomainArray = [];
+      measureSoundEnergy(analyzer);
+      const samplingRate = .0167;
+      setTimeout(energyCollectionLoop, samplingRate);
+    }
+  }
+
+  energyCollectionLoop();
 }
+
+let recordingOn = false;
 
 function initUserAudio() {
   recordAudio.addEventListener('click', startRecording);

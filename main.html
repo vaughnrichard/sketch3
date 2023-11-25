@@ -10,11 +10,24 @@
     <h1>
         Instrument
     </h1>
+    
+    <br>
 
     <button id="addTrack">Add Track</button>
     <button id="remTrack">Remove Track</button>
 
-    <div id="tracks"></div>
+    <div id="tracks">
+
+        <div id="names">
+        </div>
+
+        <div id="music">
+        </div>
+
+        <div id="misc">
+        </div>
+
+    </div>
 
     <br>
 
@@ -28,7 +41,11 @@
 
     <div id="audioVisualization">
         <h3> Intensity vs Frequency</h3>
-        <canvas id="displayVis" height="400" width="16348"></canvas>
+        <canvas id="displayVis" height="400" width="1000"></canvas>
+    </div>
+
+    <div id="displayEnergyVal">
+        <h3 id="energyDisplay">Waiting for Sound</h3>
     </div>
 
     <!-- <script type="module" src="./js/fft.js"></script>
