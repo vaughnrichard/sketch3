@@ -41,10 +41,13 @@ var timeDomainArray = new Array();
 const energyVal = document.getElementById("energyDisplay");
 // Call this function periodically to measure the sound energy
 function measureSoundEnergy(analyzer) {
+  // console.log("inhere");
 
   const bufferLength = analyzer.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength); // can also do float data if desired
   analyzer.getByteFrequencyData(dataArray);
+
+  // console.log(dataArray);
 
   // Calculate the average energy in the frequency data
   let sum = 0;
@@ -54,7 +57,7 @@ function measureSoundEnergy(analyzer) {
 
   // timeDomainArray.push(sum);
   timeDomainArray.push(sum);
-  console.log(timeDomainArray.length);
+  // console.log(timeDomainArray.length);
 
   energyVal.innerHTML = sum;
 }

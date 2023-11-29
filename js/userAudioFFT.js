@@ -1,4 +1,7 @@
 import { graphData, measureSoundEnergy, resetTimeDomain, timeDomainArray } from "./fft.js";
+import { audioSamplingRate, granularity } from "./parameters.js";
+import { Note, spliceAudioByNotes } from "./notes.js";
+import { returnNotesArray } from "./energyAnalysis.js";
 
 // maybe refer to this example :
 // https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/fftSize
@@ -24,7 +27,6 @@ async function startRecording() {
 
   const analyzer = audioContext.createAnalyser();
 
-  const granularity = 2 ** 11;
   analyzer.fftSize = granularity;
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -35,41 +37,48 @@ async function startRecording() {
   source.connect(analyzer);
 
   mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-          audioChunks.push(e.data);
-      }
+      // if (e.data.size > 0) {
+      audioChunks.push(e.data);
+      // }
   };
 
   mediaRecorder.onstop = () => {
     recordingOn = false;
-    // const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+    // keepDetecting = false;
+    clearInterval(intervalID);
+
+    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
     // // console.log(audioBlob.arrayBuffer)
     // const audioUrl = URL.createObjectURL(audioBlob);
 
-    keepDetecting = false;
 
-    // console.log(analyzer)
-
-    // console.log(timeDomainArray);
+    // graph the results
     graphData(displayVis, null, false);
-    // graphTimeDomain(timeDomainArray, displayVis);
+
+    // get notes
+    const notesArray = returnNotesArray(timeDomainArray);
+    spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext);
+  
     resetTimeDomain();
   };
 
   mediaRecorder.start();
 
-  let keepDetecting = true;
+  // let keepDetecting = true;
 
-  function energyCollectionLoop() {
-    if (keepDetecting) {
-      // timeDomainArray = [];
-      measureSoundEnergy(analyzer);
-      const samplingRate = .0167;
-      setTimeout(energyCollectionLoop, samplingRate);
-    }
-  }
+  // function energyCollectionLoop() {
+  //   if (keepDetecting) {
+  //     // timeDomainArray = [];
+  //     measureSoundEnergy(analyzer);
+  //     // const samplingRate = .0167;
+  //     setTimeout(energyCollectionLoop, audioSamplingRate);
+  //   }
+  // }
 
-  energyCollectionLoop();
+  // energyCollectionLoop();
+  const intervalID = setInterval(function () {
+    measureSoundEnergy(analyzer);
+  }, audioSamplingRate);
 }
 
 let recordingOn = false;
