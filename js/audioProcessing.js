@@ -1,4 +1,5 @@
 /* This file deals with processing the audio data */
+import { granularity } from "./parameters.js";
 
 function spliceAudio(startTime, endTime, buffer, context) {
 
@@ -49,4 +50,53 @@ function generateNoteBufferArray(notesArray, buffer, context) {
 
 }
 
-export { generateNoteBufferArray }
+function generateFFTFromBuffer(buffer, fn) {
+  // const offlineContext = new OfflineAudioContext();
+  // const offlineContext = new webkitOfflineAudioContext();
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const analyzer = audioCtx.createAnalyser();
+  analyzer.fftSize = granularity;
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+
+  source.connect(analyzer);
+  // analyzer.connect(context.destination);
+
+  source.connect(audioCtx.destination);
+  const dataArray = new Uint8Array( analyzer.frequencyBinCount );
+
+
+  function ended(e) {
+    analyzer.getByteFrequencyData(dataArray);
+
+    fn(dataArray);
+  };
+
+  source.onended = ended;
+
+  source.start();
+
+}
+
+function generateFFTArray(bufferArray) {
+  // const context = new (window.AudioContext || window.webkitAudioContext)();
+
+  const fftArray = new Array( bufferArray.length - 1 );
+
+  for (let i = 1; i < bufferArray.length; i++) {
+    function addToArray(fft) {
+      fftArray[i - 1] = fft;
+    }
+
+    generateFFTFromBuffer( bufferArray[i], addToArray );
+  }
+
+  // context.close();
+
+
+
+  return fftArray;
+}
+
+export { generateNoteBufferArray, generateFFTArray }

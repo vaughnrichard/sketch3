@@ -2,7 +2,9 @@
 import { indexToTime } from "./time.js";
 import { lerp } from "./math.js";
 import { audioSamplingRate } from "./parameters.js";
-import { generateNoteBufferArray } from "./audioProcessing.js";
+import { generateNoteBufferArray, generateFFTArray } from "./audioProcessing.js";
+
+let FFT_ARR;
 
 class Note {
     constructor(start, end) {
@@ -103,6 +105,13 @@ function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context) {
       //   console.log(notesArray);
       const buffArray = generateNoteBufferArray(notesArray, buff, context);
       console.log(buffArray);
+      FFT_ARR = generateFFTArray(buffArray, context);
+
+      setTimeout(function() {
+        console.log(FFT_ARR); // getting the FFT Now! - just need to wait
+      }, 5000);
+      // console.log(FFT_ARR);
+    //   const FFT_ARR
     });
 }
 
