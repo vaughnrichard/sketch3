@@ -17,7 +17,7 @@ const stopButton = document.getElementById('stopButton');
 let mediaRecorder;
 let audioContext;
 
-async function startRecording() {
+async function startRecording(musDiv) {
   if (recordingOn) { return; }
 
   recordingOn = true;
@@ -42,7 +42,7 @@ async function startRecording() {
       // }
   };
 
-  mediaRecorder.onstop = () => {
+  mediaRecorder.onstop = async () => {
     recordingOn = false;
     // keepDetecting = false;
     clearInterval(intervalID);
@@ -57,23 +57,19 @@ async function startRecording() {
 
     // get notes
     const notesArray = returnNotesArray(timeDomainArray);
-    spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext);
+
+    // due to filereader, this now must be done by callback functions
+    spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext, function (notes) {
+      // notes.shift()
+      musDiv.dataset.notes = JSON.stringify(notes);
+
+
+    });
   
     resetTimeDomain();
   };
 
   mediaRecorder.start();
-
-  // let keepDetecting = true;
-
-  // function energyCollectionLoop() {
-  //   if (keepDetecting) {
-  //     // timeDomainArray = [];
-  //     measureSoundEnergy(analyzer);
-  //     // const samplingRate = .0167;
-  //     setTimeout(energyCollectionLoop, audioSamplingRate);
-  //   }
-  // }
 
   // energyCollectionLoop();
   const intervalID = setInterval(function () {
@@ -92,4 +88,4 @@ function initUserAudio() {
   });
 }
 
-export { initUserAudio }
+export { initUserAudio, startRecording }

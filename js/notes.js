@@ -2,9 +2,9 @@
 import { indexToTime } from "./time.js";
 import { lerp } from "./math.js";
 import { audioSamplingRate } from "./parameters.js";
-import { generateNoteBufferArray, generateFFTArray } from "./audioProcessing.js";
+import { generateNoteBufferArray, generateFFTArrayAndGoToPDA } from "./audioProcessing.js";
 
-let FFT_ARR;
+// let FFT_ARR;
 
 class Note {
     constructor(start, end) {
@@ -68,7 +68,7 @@ function findNotes(parsedNoteArray) {
     return notesArray;
 }
 
-function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context) {
+function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callback) {
 
     // create new context
     // const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -99,19 +99,24 @@ function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context) {
 
     blobToAudioBuffer(audioBlob, context, function(buff) {
       audioBuff = buff;
-      console.log(audioBuff);
-      // console.log(notesArray);
-      notesArray = correctNotesTiming(buff.duration, notesArray, maxNoteIndex);
-      //   console.log(notesArray);
-      const buffArray = generateNoteBufferArray(notesArray, buff, context);
-      console.log(buffArray);
-      FFT_ARR = generateFFTArray(buffArray, context);
 
-      setTimeout(function() {
-        console.log(FFT_ARR); // getting the FFT Now! - just need to wait
-      }, 5000);
-      // console.log(FFT_ARR);
-    //   const FFT_ARR
+      notesArray = correctNotesTiming(buff.duration, notesArray, maxNoteIndex);
+
+      const buffArray = generateNoteBufferArray(notesArray, buff, context);
+
+    //   console.log(buffArray);
+
+      function assignFrequencies(pitchArray) {
+        // console.log("the arrays", notesArray, pitchArray);
+        notesArray.shift()
+        for (let idx = 0; idx < notesArray.length; idx++) {
+          notesArray[idx].frequency = pitchArray[idx];
+        }
+        // console.log(notesArray)
+        callback(notesArray);
+      }
+
+      generateFFTArrayAndGoToPDA(buffArray, assignFrequencies); // pass next function to FFT Array
     });
 }
 

@@ -1,6 +1,7 @@
 /** File to Manage Tracks */
 import { Note } from "./notes.js";
 import { clamp } from "./math.js";
+import { startRecording } from "./userAudioFFT.js";
 
 class Track {
   constructor() {
@@ -38,8 +39,9 @@ function addDefTrack() {
   // create the name
   const trackName = document.createElement('p');
   trackName.className = "trackP";
+  trackName.contentEditable = "true";
 
-  trackName.innerHTML = '<p class="trackP" contenteditable="true">Instrument</p>';
+  trackName.innerHTML = 'Instrument';
 
   // create the musical element
   const musDiv = document.createElement('div');
@@ -55,7 +57,8 @@ function addDefTrack() {
   const recordButton = document.createElement('button');
   recordButton.textContent = 'Record'
   recordButton.addEventListener('click', function() {
-    addSegment(musDiv);
+    const musicDiv = addSegment(musDiv);
+    startRecording(musicDiv);
   })
 
   miscFunctions.appendChild(volume);
@@ -66,7 +69,9 @@ function addDefTrack() {
   // remTrack.innerHTML = '<button class="remTrack">Remove Track</button>';
   remTrack.textContent = 'Remove Track';
   remTrack.addEventListener('click', function () {
-    tracksDiv.removeChild(trackDOM);
+    if (tracksDiv.children.length > 1) {
+      tracksDiv.removeChild(trackDOM);
+    }
   });
 
   // append elements to the trackDOM
@@ -76,9 +81,12 @@ function addDefTrack() {
   trackDOM.appendChild(remTrack);
 
   // update style
-  trackDOM.style = trackDOM.style;
+  // trackDOM.style = trackDOM.style;
 
   tracksDiv.appendChild(trackDOM);
+
+  // tracksDiv.setAttribute('notes')
+  tracksDiv.notesArray = null;
 
   return trackDOM;
 }
@@ -102,9 +110,8 @@ function addSegment(parentComponent) {
 
     function moveSegment(e) {
       const newPos = segDiv.offsetLeft  + e.movementX;
-      // console.log(newPos);
-      // console.log(segDiv.offsetLeft);
-      segDiv.style.left = clamp(newPos, parentComponent.offsetLeft , parentComponent.clientWidth - segDiv.clientWidth + parentComponent.offsetLeft) +'px';
+
+      segDiv.style.left = Math.round(clamp(newPos, parentComponent.offsetLeft , parentComponent.clientWidth - segDiv.clientWidth + parentComponent.offsetLeft)) +'px';
     }
 
     window.addEventListener('mousemove', moveSegment)
@@ -122,6 +129,7 @@ function addSegment(parentComponent) {
 
 function initTrack() {
     addTrack.addEventListener("click", addDefTrack);
+    addDefTrack();
 }
 
 export { initTrack }
