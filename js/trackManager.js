@@ -1,7 +1,7 @@
 /** File to Manage Tracks */
 import { Note } from "./notes.js";
 import { clamp } from "./math.js";
-import { startRecording } from "./userAudioFFT.js";
+import { startRecording, makeButtonStopRecording } from "./userAudioFFT.js";
 
 class Track {
   constructor() {
@@ -57,8 +57,23 @@ function addDefTrack() {
   const recordButton = document.createElement('button');
   recordButton.textContent = 'Record'
   recordButton.addEventListener('click', function() {
-    const musicDiv = addSegment(musDiv);
-    startRecording(musicDiv);
+
+    if (recordButton.textContent == 'Record') {
+
+      const musicDiv = addSegment(musDiv);
+      recordButton.textContent = 'Stop Recording';
+
+      makeButtonStopRecording(recordButton);
+      // recordButton.addEventListener('click', function stopSegRecording() {
+  
+      //   recordButton.removeEventListener(stopSegRecording);
+      // });
+
+      startRecording(musicDiv);
+    } else { // text content = 'Stop Recording'
+      recordButton.textContent = 'Record';
+    }
+
   })
 
   miscFunctions.appendChild(volume);

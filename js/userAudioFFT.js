@@ -79,6 +79,14 @@ async function startRecording(musDiv) {
 
 let recordingOn = false;
 
+function makeButtonStopRecording(button) {
+  button.addEventListener('click', function stopTheRecording() {
+    mediaRecorder.stop();
+    audioContext.close();
+    button.removeEventListener('click', stopTheRecording);
+  });
+}
+
 function initUserAudio() {
   recordAudio.addEventListener('click', startRecording);
 
@@ -88,4 +96,4 @@ function initUserAudio() {
   });
 }
 
-export { initUserAudio, startRecording }
+export { initUserAudio, startRecording, makeButtonStopRecording }
