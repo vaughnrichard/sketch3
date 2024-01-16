@@ -111,7 +111,7 @@ function addSegment(parentComponent) {
   segDiv.className = 'segDiv';
   segDiv.style.width = '100px';
   segDiv.style.height = parentComponent.clientHeight + 'px';
-  segDiv.style.backgroundColor = 'red';
+  // segDiv.style.backgroundColor = 'red';
   segDiv.style.top = parentComponent.offsetTop + 'px';
   segDiv.style.left = parentComponent.offsetLeft + 'px';
   segDiv.style.position = 'absolute';

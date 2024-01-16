@@ -36,6 +36,25 @@ scrollDiv.addEventListener('mousedown', function segMover() {
 /* Functions dealing with pausing / playing the song */
 let paused = false;
 
+function playNotes(context, notes) {
+  for (let note = 0; note < notes.length; note++ ) {
+    const curNote = notes[note];
+
+    setTimeout(function () {
+      const oscillator = context.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.connect(context.destination);
+      oscillator.frequency.value = curNote.frequency;
+      oscillator.start();
+
+      setTimeout(function() {
+        oscillator.stop();
+      }, (curNote.endT - curNote.startT)*1000);
+    }, curNote.startT * 1000);
+
+  }
+}
+
 function initPlayListener() {
   playSong.addEventListener('click', function () {
 
@@ -46,6 +65,8 @@ function initPlayListener() {
     } else { // now on play mode
       playSong.textContent = "Pause Song";
 
+      const notePlayer = new(window.AudioContext || window.webkitAudioContext)();
+
       const updateScrollInterval = setInterval(function updateScroll() {
         if (!paused) {
           clearInterval(updateScrollInterval);
@@ -55,13 +76,18 @@ function initPlayListener() {
 
         scrollDiv.style.left = Math.round(clamp(scrollDiv.offsetLeft + 1, musDiv[0].offsetLeft, musDiv[0].clientWidth - scrollDiv.clientWidth + musDiv[0].offsetLeft)) +'px';
 
-        for (let seg = 0; seg < musDiv[0].children.length; seg++ ) {
-          if (scrollDiv.offsetLeft == musDiv[0].children[seg].offsetLeft) {
-  
-            // console.log('t2')
-            const synth = new Tone.Synth().toDestination();
-            // synth.volume.value = -8 // volume in decibals
-            synth.triggerAttackRelease('C4', '8n', Tone.now());
+        for (let div = 0; div < musDiv.length; div++) {
+          for (let seg = 0; seg < musDiv[div].children.length; seg++ ) {
+            // console.log(musDiv);
+            if (scrollDiv.offsetLeft == musDiv[div].children[seg].offsetLeft) {
+    
+              // console.log('t2')
+              // const synth = new Tone.Synth().toDestination();
+              // synth.volume.value = -8 // volume in decibals
+              // synth.triggerAttackRelease('C4', '8n', Tone.now());
+              const notes = JSON.parse(musDiv[div].children[seg].dataset.notes);
+              playNotes(notePlayer, notes);
+            }
           }
         }
   

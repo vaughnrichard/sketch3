@@ -2,6 +2,7 @@ import { graphData, measureSoundEnergy, resetTimeDomain, timeDomainArray } from 
 import { audioSamplingRate, granularity } from "./parameters.js";
 import { Note, spliceAudioByNotes } from "./notes.js";
 import { returnNotesArray } from "./energyAnalysis.js";
+import { lerp } from "./math.js";
 
 // maybe refer to this example :
 // https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/fftSize
@@ -61,8 +62,22 @@ async function startRecording(musDiv) {
     // due to filereader, this now must be done by callback functions
     spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext, function (notes) {
       // notes.shift()
+      // console.log(notes);
       musDiv.dataset.notes = JSON.stringify(notes);
+      
+      
+      const noteCanvas = document.createElement('canvas');
 
+      // noteCanvas.notes = notes;
+
+      noteCanvas.style.width = musDiv.offsetWidth + 'px';
+      noteCanvas.style.height = musDiv.offsetHeight + 'px';
+
+      musDiv.appendChild(noteCanvas);
+
+      drawNoteCanvas(noteCanvas, notes);
+
+      // console.log(notes);
 
     });
   
@@ -76,6 +91,34 @@ async function startRecording(musDiv) {
     measureSoundEnergy(analyzer);
   }, audioSamplingRate);
 }
+
+/* Functions to deal with the music div & making it work */
+function drawNoteCanvas(canvas, notes) {
+  const ctx = canvas.getContext("2d");
+
+  function getPixel( noteTimeStep ) {
+    return lerp(0, canvas.width, 0, noteTimeStep, notes[notes.length - 1].end);
+  }
+
+  ctx.fillStyle = 'red';
+
+  for (let note = 0; note < notes.length; note++ ) {
+    const curNote = notes[note];
+    const pixelBounds = [getPixel(curNote.start), getPixel(curNote.end)];
+
+    console.log(canvas.offsetHeight);
+
+    ctx.fillRect(pixelBounds[0], 0, (pixelBounds[1] - pixelBounds[0]), canvas.height );
+  }
+
+  ctx.strokeStyle = 'blue';
+  ctx.lineWidth = 15;
+  ctx.strokeRect(0, 0, canvas.width, canvas.height);
+}
+
+// function createToneMelody(notes) {
+//   return null;
+// }
 
 let recordingOn = false;
 
