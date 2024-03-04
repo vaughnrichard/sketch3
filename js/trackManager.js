@@ -22,7 +22,20 @@ class TrackManager {
   removeTrack(track) {
     this.tracks.pop(track);
   }
+
+  returnBounds() {
+    const bounds = {
+      left: 100,
+      right: 600,
+      top: 0,
+      bottom: 200
+    }
+
+    return bounds;
+  }
 }
+
+const trackManager = new TrackManager();
 
 class Track {
   constructor() {
@@ -167,4 +180,4 @@ function initTrack() {
     addDefTrack();
 }
 
-export { initTrack }
+export { initTrack, trackManager }

@@ -1,123 +1,124 @@
+/* The file for dealing with playback of the recorded audio */
+
 // imports
 import { clamp } from "./math.js";
+import { trackManager } from "./trackManager.js";
 
 class PlaybackManager {
-  constructor(trackManager) {
+  constructor(playbackSpeed=16.7) {
     this.playSongButton = document.getElementById("playSong");
     this.trackManager = trackManager;
-  }
-}
 
+    this.paused = true;
 
-/* The file for dealing with playback of the recorded audio */
-const tracksDiv = document.getElementById("tracks");
+    this.scrollDiv = document.createElement('div');
+    this.initScrollDiv();
 
-let musDiv = document.getElementsByClassName('music');
+    this.notePlayer = new(window.AudioContext || window.webkitAudioContext)();
 
-/* Functions dealing with the scroll bar */
-const scrollDiv = document.createElement('div');
-scrollDiv.style.height = '100px';
-scrollDiv.style.width = '5px';
-scrollDiv.style.backgroundColor = 'red';
-scrollDiv.style.position = 'absolute';
-
-scrollDiv.addEventListener('mousedown', function segMover() {
-
-  function moveSegment(e) {
-    const newPos = scrollDiv.offsetLeft  + e.movementX;
-    // console.log(scrollDiv.offsetLeft)
-
-    scrollDiv.style.left = Math.round(clamp(newPos, musDiv[0].offsetLeft , musDiv[0].clientWidth - scrollDiv.clientWidth + musDiv[0].offsetLeft)) +'px';
-    // console.log(scrollDiv.style.left)
-    // scrollDiv.offsetLeft = Math.round(clamp(newPos, /*parentComponent.offsetLeft*/ 0 , 100/*parentComponent.clientWidth - scrollDiv.clientWidth + parentComponent.offsetLeft */));
-    // console.log(scrollDiv.offsetLeft)
+    this.playbackSpeed = playbackSpeed; // ms per step
   }
 
-  window.addEventListener('mousemove', moveSegment)
+  initScrollDiv() {
+    // styling - need to enable dynamic scaling on the height!
+    const bounds = this.trackManager.returnBounds();
 
-  window.addEventListener('mouseup', function () {
-    window.removeEventListener('mousemove', moveSegment);
-  });
-});
+    const scrollDivStyling = {
+      height: String(bounds.top - bounds.bottom) + 'px',
+      width: '5px',
+      backgroundColor: 'red',
+      position: 'absolute'
+    };
 
-/* Functions dealing with pausing / playing the song */
-let paused = false;
-
-
-// code adapted from https://stackoverflow.com/questions/39200994/how-to-play-a-specific-frequency-with-javascript
-function playNotes(context, notes) {
-  for (let note = 0; note < notes.length; note++ ) {
-    const curNote = notes[note];
-
-    setTimeout(function () {
-      const oscillator = context.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.connect(context.destination);
-      oscillator.frequency.value = curNote.frequency;
-      oscillator.start();
-
-      setTimeout(function() {
-        oscillator.stop();
-      }, (curNote.endT - curNote.startT)*1000);
-    }, curNote.startT * 1000);
-
-  }
-}
-
-function initPlayListener() {
-  playSong.addEventListener('click', function () {
-
-    paused = !paused;
-
-    if (!paused) {
-      playSong.textContent = "Play Song";
-    } else { // now on play mode
-      playSong.textContent = "Pause Song";
-
-      const notePlayer = new(window.AudioContext || window.webkitAudioContext)();
-
-      const updateScrollInterval = setInterval(function updateScroll() {
-        if (!paused) {
-          clearInterval(updateScrollInterval);
-          return;
-        }
-        musDiv = document.getElementsByClassName('music');
-
-        scrollDiv.style.left = Math.round(clamp(scrollDiv.offsetLeft + 1, musDiv[0].offsetLeft, musDiv[0].clientWidth - scrollDiv.clientWidth + musDiv[0].offsetLeft)) +'px';
-
-        for (let div = 0; div < musDiv.length; div++) {
-          for (let seg = 0; seg < musDiv[div].children.length; seg++ ) {
-            // console.log(musDiv);
-            if (scrollDiv.offsetLeft == musDiv[div].children[seg].offsetLeft) {
-    
-              // console.log('t2')
-              // const synth = new Tone.Synth().toDestination();
-              // synth.volume.value = -8 // volume in decibals
-              // synth.triggerAttackRelease('C4', '8n', Tone.now());
-              const notes = JSON.parse(musDiv[div].children[seg].dataset.notes);
-              playNotes(notePlayer, notes);
-            }
-          }
-        }
-  
-        if (scrollDiv.offsetLeft == musDiv[0].clientWidth - scrollDiv.clientWidth + musDiv[0].offsetLeft) {
-          paused = !paused;
-          playSong.textContent = "Play Song";
-          scrollDiv.style.left = musDiv[0].offsetLeft;
-        }
-      }, 16.67);
-
+    for (const property in scrollDivStyling) {
+      this.scrollDiv.style[property] = scrollDivStyling[property];      
     }
+
+    // append scroll div to the tracksdiv 
+    this.trackManager.tracksDiv.appendChild(this.scrollDiv);
+
+    const playbackManager = this;
+    this.scrollDiv.addEventListener('mousedown', () => {
+
+      function moveSegmentHelper(e) {
+        playbackManager.moveScrollDiv(e.clientX);
+      }
     
-  });
+      window.addEventListener('mousemove', moveSegmentHelper)
+      window.addEventListener('mouseup', function cleanUpListeners() {
+        window.removeEventListener('mousemove', moveSegmentHelper);
+        this.window.removeEventListener('mouseup', cleanUpListeners);
+      });
+    });
+  }
+
+  initPlayListener() {
+    const playbackManager = this;
+    const playButton = this.playSongButton;
+    playButton.addEventListener('click', () => {
+      playbackManager.paused = !playbackManager.paused;
+
+      playButton.textContent = (playbackManager.paused) ? "Play Song" : "Pause Song" ;
+    });
+  }
+
+  moveScrollDiv(position) {
+    const bounds = this.trackManager.returnBounds();
+
+    this.scrollDiv.style['left'] = Math.round( clamp(position, bounds.left , bounds.right) ) +'px';
+  }
+
+  updateScroll() {
+    if (!paused) { return; }
+
+    const bounds = this.trackManager.returnBounds();
+    this.scrollDiv.style['left'] = Math.round(clamp(this.scrollDiv.offsetLeft + 1, bounds.left, bounds.right)) +'px';
+
+    for (let div = 0; div < musDiv.length; div++) {
+      for (let seg = 0; seg < musDiv[div].children.length; seg++ ) {
+        if (scrollDiv.offsetLeft == musDiv[div].children[seg].offsetLeft) {
+          const notes = JSON.parse(musDiv[div].children[seg].dataset.notes);
+          playNotes(notePlayer, notes);
+        }
+      }
+    }
+
+    if (scrollDiv.offsetLeft == bounds.right) {
+      paused = true;
+      playSong.textContent = "Play Song";
+      scrollDiv.style['left'] = bounds.left;
+    }
+  }
+
+  // code adapted from https://stackoverflow.com/questions/39200994/how-to-play-a-specific-frequency-with-javascript
+  playNotes(context, notes) {
+    for (let note = 0; note < notes.length; note++ ) {
+      const curNote = notes[note];
+  
+      setTimeout(function () {
+        const oscillator = context.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.connect(context.destination);
+        oscillator.frequency.value = curNote.frequency;
+        oscillator.start();
+  
+        setTimeout(function() {
+          oscillator.stop();
+        }, (curNote.endT - curNote.startT)*1000);
+      }, curNote.startT * 1000);
+  
+    }
+  }
+
+  playLoop() {
+    if (this.paused) { return; }
+
+    this.updateScroll();
+    setTimeout(() => { this.playLoop() }, this.playbackSpeed);
+  }
+
 }
 
-function initPlayback() {
-  initPlayListener();
-  // hacky to have this part here. revise in the future
-  scrollDiv.style.left = musDiv[0].offsetLeft + 'px';
+const playbackManager = new PlaybackManager();
 
-  tracksDiv.appendChild(scrollDiv);
-}
-
-export { initPlayback }
+export { playbackManager }
