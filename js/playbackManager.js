@@ -1,9 +1,16 @@
 // imports
 import { clamp } from "./math.js";
 
+class PlaybackManager {
+  constructor(trackManager) {
+    this.playSongButton = document.getElementById("playSong");
+    this.trackManager = trackManager;
+  }
+}
+
+
 /* The file for dealing with playback of the recorded audio */
 const tracksDiv = document.getElementById("tracks");
-const playSong = document.getElementById("playSong");
 
 let musDiv = document.getElementsByClassName('music');
 
