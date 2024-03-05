@@ -2,6 +2,7 @@
 import { Note } from "./notes.js";
 import { clamp } from "./math.js";
 import { startRecording, makeButtonStopRecording } from "./userAudioFFT.js";
+import { PlaybackManager } from "./playbackManager.js";
 
 class TrackManager {
   constructor() {
@@ -10,10 +11,30 @@ class TrackManager {
 
     this.addTrackButton = document.getElementById("addTrack");
     this.playSongButton = document.getElementById("playSong");
+
+    this.playbackManager = new PlaybackManager(this);
+
+    this.nameContainer = document.getElementById("nameContainer");
+    this.musicContainer = document.getElementById("musicContainer");
+    this.otherContainer = document.getElementById("otherContainer");
+
+    this.initAddTrackButton();
+    this.initPlaybackButton();
+  }
+
+  initAddTrackButton() {
+    const trackManager = this;
+    this.addTrackButton.addEventListener('click', () => {
+      trackManager.addTrack();
+    });
+  }
+
+  initPlaybackButton() {
+    this.playbackManager.initPlayListener();
   }
 
   addTrack() {
-    const newTrack = new Track();
+    const newTrack = new Track(this);
     this.tracks.push(newTrack);
 
     // add styling
@@ -35,18 +56,19 @@ class TrackManager {
   }
 }
 
-const trackManager = new TrackManager();
-
 class Track {
-  constructor() {
+  constructor(trackManager) {
+    this.trackManager = trackManager;
     this.name = "Instrument";
     this.instrument = null;
     this.dom = this.addDefTrack();
-    this.segments = new Array(Segment);
+    this.segments = []; // array of segments
   }
 
   /* This function adds a new default track to the tracks Div */
  addDefTrack() {
+    const track = this;
+
     // create div to put in tracks overall div
     const trackDOM = document.createElement('div');
     trackDOM.className = 'trackDOM'
@@ -75,14 +97,13 @@ class Track {
 
       if (recordButton.textContent == 'Record') {
 
-        const musicDiv = addSegment(musDiv);
+        const newSegment = new Segment();
+        track.segments.push(newSegment);
+        console.log(musDiv);
+        const musicDiv = newSegment.addSegment(musDiv);
         recordButton.textContent = 'Stop Recording';
 
         makeButtonStopRecording(recordButton);
-        // recordButton.addEventListener('click', function stopSegRecording() {
-    
-        //   recordButton.removeEventListener(stopSegRecording);
-        // });
 
         startRecording(musicDiv);
       } else { // text content = 'Stop Recording'
@@ -110,13 +131,9 @@ class Track {
     trackDOM.appendChild(miscFunctions);
     trackDOM.appendChild(remTrack);
 
-    // update style
-    // trackDOM.style = trackDOM.style;
+    this.trackManager.tracksDiv.appendChild(trackDOM);
 
-    this.tracksDiv.appendChild(trackDOM);
-
-    // tracksDiv.setAttribute('notes')
-    this.tracksDiv.notesArray = null;
+    this.trackManager.tracksDiv.notesArray = null;
 
     return trackDOM;
   }
@@ -128,56 +145,58 @@ class Segment {
     this.start = 0;
     this.end = 1000;
     this.parentTrack = parentTrack;
-    this.dom = addSegment();
+    this.segDiv = null;
+    this.parentDom = null;
   }
 
   addSegment(parentComponent) {
-    const segDiv = document.createElement('div');
-    segDiv.className = 'segDiv';
-    segDiv.style.width = '100px';
-    segDiv.style.height = parentComponent.clientHeight + 'px';
-    // segDiv.style.backgroundColor = 'red';
-    segDiv.style.top = parentComponent.offsetTop + 'px';
-    segDiv.style.left = parentComponent.offsetLeft + 'px';
-    segDiv.style.position = 'absolute';
+    this.parentDom = parentComponent;
+    this.segDiv = document.createElement('div');
+    this.segDiv.className = 'segDiv';
+    this.segDiv.style.width = '100px';
+    this.segDiv.style.height = this.parentDom.clientHeight + 'px';
+    this.segDiv.style.top = this.parentDom.offsetTop + 'px';
+    this.segDiv.style.left = this.parentDom.offsetLeft + 'px';
+    this.segDiv.style.position = 'absolute';
   
     // maybe add something to bring up editable panel if click on 
     // segDiv.addEventListener('click', function () {
     //   console.log('testing')
     // });
   
-    segDiv.addEventListener('mousedown', function segMover() {
-  
+    const segDiv = this.segDiv;
+    const parentDom = this.parentDom;
+    this.segDiv.addEventListener('mousedown', function segMover() {
       function moveSegment(e) {
-        const newPos = segDiv.offsetLeft  + e.movementX;
-  
-        segDiv.style.left = Math.round(clamp(newPos, parentComponent.offsetLeft , parentComponent.clientWidth - segDiv.clientWidth + parentComponent.offsetLeft)) +'px';
+        const deltaPosition = e.movementX;
+
+        const boundsPD = parentDom.getBoundingClientRect();
+        const boundsSD = segDiv.getBoundingClientRect();
+
+        const newPos = boundsSD.left + deltaPosition;
+
+        const segWidth = (boundsSD.right - boundsSD.left);
+
+        segDiv.style.left = String( Math.round(clamp(newPos, boundsPD.left , boundsPD.right - segWidth) ) ) +'px';
       }
   
       window.addEventListener('mousemove', moveSegment)
   
       window.addEventListener('mouseup', function () {
         window.removeEventListener('mousemove', moveSegment);
-        // segDiv.removeEventListener('mousedown', segMover);
       });
     });
   
-    parentComponent.appendChild(segDiv);
+    parentComponent.appendChild(this.segDiv);
   
-    return segDiv;
+    return this.segDiv;
   }
 
   removeSegment() {
-    this.parentTrack.removeChild(this.dom);
+    this.parentTrack.removeChild(this.segDiv);
   }
 }
 
-const tracksDiv = document.getElementById("tracks");
-const addTrack = document.getElementById("addTrack");
+const trackManager = new TrackManager();
 
-function initTrack() {
-    addTrack.addEventListener("click", addDefTrack);
-    addDefTrack();
-}
-
-export { initTrack, trackManager }
+export { trackManager }

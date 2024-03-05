@@ -2,10 +2,9 @@
 
 // imports
 import { clamp } from "./math.js";
-import { trackManager } from "./trackManager.js";
 
 class PlaybackManager {
-  constructor(playbackSpeed=16.7) {
+  constructor(trackManager, playbackSpeed=16.67) {
     this.playSongButton = document.getElementById("playSong");
     this.trackManager = trackManager;
 
@@ -19,12 +18,16 @@ class PlaybackManager {
     this.playbackSpeed = playbackSpeed; // ms per step
   }
 
+  attachTrackManager(trackManager) {
+    this.trackManager = trackManager;
+  }
+
   initScrollDiv() {
     // styling - need to enable dynamic scaling on the height!
     const bounds = this.trackManager.returnBounds();
 
     const scrollDivStyling = {
-      height: String(bounds.top - bounds.bottom) + 'px',
+      height: String(bounds.bottom - bounds.top) + 'px',
       width: '5px',
       backgroundColor: 'red',
       position: 'absolute'
@@ -52,6 +55,7 @@ class PlaybackManager {
     });
   }
 
+  // this function is called in track manager
   initPlayListener() {
     const playbackManager = this;
     const playButton = this.playSongButton;
@@ -59,6 +63,8 @@ class PlaybackManager {
       playbackManager.paused = !playbackManager.paused;
 
       playButton.textContent = (playbackManager.paused) ? "Play Song" : "Pause Song" ;
+
+      if (!playbackManager.paused) { this.playLoop(); }
     });
   }
 
@@ -69,24 +75,24 @@ class PlaybackManager {
   }
 
   updateScroll() {
-    if (!paused) { return; }
+    if (this.paused) { return; }
 
     const bounds = this.trackManager.returnBounds();
     this.scrollDiv.style['left'] = Math.round(clamp(this.scrollDiv.offsetLeft + 1, bounds.left, bounds.right)) +'px';
 
-    for (let div = 0; div < musDiv.length; div++) {
-      for (let seg = 0; seg < musDiv[div].children.length; seg++ ) {
-        if (scrollDiv.offsetLeft == musDiv[div].children[seg].offsetLeft) {
-          const notes = JSON.parse(musDiv[div].children[seg].dataset.notes);
-          playNotes(notePlayer, notes);
+    for (let trackId = 0; trackId < this.trackManager.tracks.length; trackId++ ) {
+      const track = this.trackManager.tracks[trackId];
+      for (let segment = 0; segment < track.segments.length; segment++) {
+        if (this.scrollDiv.offsetLeft === segment.start ) {
+          this.playNotes( this.notePlayer, segment.notes );
         }
       }
     }
 
-    if (scrollDiv.offsetLeft == bounds.right) {
-      paused = true;
-      playSong.textContent = "Play Song";
-      scrollDiv.style['left'] = bounds.left;
+    if (this.scrollDiv.offsetLeft == bounds.right) {
+      this.paused = true;
+      this.playSongButton.textContent = "Play Song";
+      this.scrollDiv.style['left'] = String(bounds.left) + 'px';
     }
   }
 
@@ -119,6 +125,6 @@ class PlaybackManager {
 
 }
 
-const playbackManager = new PlaybackManager();
+// const playbackManager = new PlaybackManager();
 
-export { playbackManager }
+export { PlaybackManager }

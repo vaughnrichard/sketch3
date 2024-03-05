@@ -1,11 +1,10 @@
 // Imports
-import { initTrack } from "./trackManager.js";
 import { initUserAudio } from "./userAudioFFT.js";
 import { initLocalAudio } from "./localAudioFFT.js";
-import { initPlayback } from "./playbackManager.js";
+import { trackManager } from "./trackManager.js";
 
 /** Initialize other folders */
-initTrack();
 initUserAudio();
 initLocalAudio();
-initPlayback();
+
+trackManager.addTrack();
