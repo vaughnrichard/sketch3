@@ -1,6 +1,79 @@
 /* This file deals with processing the audio data */
 import { granularity } from "./parameters.js";
 
+
+class AudioProcessor {
+  constructor() {
+
+  }
+
+  generateNoteBufferArray() {
+    const audioArray = new Array();
+
+    for (let i = 0; i < notesArray.length; i++ ) {
+      const note = notesArray[i];
+      const noteBuffer = this.spliceAudio(note.startT, note.endT, buffer, context);
+      audioArray.push(noteBuffer);
+    }
+  
+    return audioArray;
+  }
+
+  spliceAudio(startTime, endTime, buffer, context) {
+
+    const startIndex = Math.floor(startTime * buffer.sampleRate);
+    const endIndex = Math.min(Math.floor(endTime * buffer.sampleRate), buffer.length);
+  
+    const bufferLength = endIndex - startIndex;
+    if (bufferLength <= 0) {
+      const dummyBuff = context.createBuffer(buffer.numberOfChannels, 1, buffer.sampleRate);
+      return dummyBuff;
+    }
+  
+    console.log(bufferLength);
+    const retBuffer = context.createBuffer(
+      buffer.numberOfChannels,
+      bufferLength,
+       buffer.sampleRate
+    );
+  
+    // Copy data from the original buffer to the new buffer
+    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+      const channelData = buffer.getChannelData(channel);
+      const newChannelData = retBuffer.getChannelData(channel);
+  
+      for (let i = 0; i < retBuffer.length; i++) {
+        newChannelData[i] = channelData[startIndex + i];
+      }
+    }
+  
+    return retBuffer;
+  }
+
+  generateFFTFromBuffer() {
+
+  }
+
+  generateFFTArrayAndGoToPDA() {
+
+  }
+
+  detectPitchOnArray(FFT_Array=[]) {
+    const notePitchArray = new Array( FFT_Array.length );
+
+    for (let fft_index = 0; fft_index < FFT_Array.length; fft_index++ ) {
+      console.log("fft", FFT_Array[fft_index])
+      notePitchArray[fft_index] = getPitch( FFT_Array[fft_index], FFT_Array[fft_index].context.sampleRate );
+    }
+
+    return notePitchArray;
+  }
+
+  processAudio() {
+
+  }
+}
+
 function spliceAudio(startTime, endTime, buffer, context) {
 
   const startIndex = Math.floor(startTime * buffer.sampleRate);
@@ -32,22 +105,6 @@ function spliceAudio(startTime, endTime, buffer, context) {
   }
 
   return retBuffer;
-}
-
-
-function generateNoteBufferArray(notesArray, buffer, context) {
-
-  const audioArray = new Array(AudioBuffer);
-
-  for (let i = 1; i < notesArray.length; i++ ) {
-    const note = notesArray[i];
-    // console.log(note)
-    const noteBuffer = spliceAudio(note.startT, note.endT, buffer, context);
-    audioArray.push(noteBuffer);
-  }
-
-  return audioArray;
-
 }
 
 function generateFFTFromBuffer(buffer, fn) {
@@ -109,11 +166,10 @@ function detectPitchOnArray(FFT_Array) {
   const notePitchArray = new Array( FFT_Array.length );
 
   for (let fft_index = 0; fft_index < FFT_Array.length; fft_index++ ) {
-    console.log("fft", FFT_Array[fft_index])
+    console.log("fft", FFT_Array[fft_index]);
     notePitchArray[fft_index] = getPitch( FFT_Array[fft_index], FFT_Array[fft_index].context.sampleRate );
   }
 
-  // console.log(notePitchArray);
   return notePitchArray;
   
 }

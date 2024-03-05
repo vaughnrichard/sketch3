@@ -3,6 +3,7 @@ import { indexToTime } from "./time.js";
 import { lerp } from "./math.js";
 import { audioSamplingRate } from "./parameters.js";
 import { generateNoteBufferArray, generateFFTArrayAndGoToPDA } from "./audioProcessing.js";
+import { EnergyAnalyzer } from "./energyAnalysis.js";
 
 // let FFT_ARR;
 
@@ -34,38 +35,25 @@ class Note {
 
 }
 
-function findNotes(parsedNoteArray) {
-    let notesArray = new Array(Note);
+class AudioAnalyzer {
+  constructor() {
+    this.rawData = null;
+    this.energyAnalyzer = new EnergyAnalyzer();
 
-    let inNote = false;
-    let currentNote = null;
+    this.notes = [];
+  }
 
-    for (let i = 0; i < parsedNoteArray.length; i++) {
-        if (parsedNoteArray[i] == 1) {
-            if (!inNote) {
-                currentNote = new Note(i, null);
-                inNote = true;
-            }
-        }
+  findNotes(rawSoundData) {
+    this.notes = this.energyAnalyzer.analyze(rawSoundData);
+  }
 
-        else {
-            if (inNote) {
-                currentNote.updateEnd(i);
-                notesArray.push(currentNote);
+  spliceAudioByNotes() {
 
-                inNote = false;
-                currentNote = null;
-            }
-        }
-    }
+  }
 
-    if (currentNote != null) {
-        currentNote.updateEnd(parsedNoteArray.length - 1);
-        notesArray.push(currentNote);
-    }
-    
+  correctNotesTiming() {
 
-    return notesArray;
+  }
 }
 
 function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callback) {
@@ -133,4 +121,4 @@ function correctNotesTiming(bufferDuration, notesArray, maxNoteIndex) {
 
 }
 
-export { Note, findNotes, spliceAudioByNotes }
+export { Note, spliceAudioByNotes }
