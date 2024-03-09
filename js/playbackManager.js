@@ -89,7 +89,7 @@ class PlaybackManager {
     if (this.paused) { return; }
 
     const bounds = this.trackManager.returnBounds();
-    this.scrollDiv.style['left'] = Math.round(clamp(this.scrollDiv.offsetLeft + 1, bounds.left, bounds.right)) +'px';
+    this.scrollDiv.style['left'] = Math.round(clamp(this.scrollDiv.offsetLeft + 1, bounds.left, bounds.right - this.scrollDiv.clientWidth)) +'px';
 
     for (let trackId = 0; trackId < this.trackManager.tracks.length; trackId++ ) {
       const track = this.trackManager.tracks[trackId];
@@ -102,11 +102,12 @@ class PlaybackManager {
       }
     }
 
-    if (this.scrollDiv.offsetLeft === bounds.right - 10) {
-      this.paused = true;
-      this.playSongButton.textContent = "Play Song";
-      this.scrollDiv.style['left'] = String(bounds.left) + 'px';
-    }
+    // figure this out
+    // if (this.scrollDiv.offsetLeft === bounds.right + 10) {
+    //   this.paused = true;
+    //   this.playSongButton.textContent = "Play Song";
+    //   this.scrollDiv.style['left'] = String(bounds.left) + 'px';
+    // }
   }
 
   // code adapted from https://stackoverflow.com/questions/39200994/how-to-play-a-specific-frequency-with-javascript
