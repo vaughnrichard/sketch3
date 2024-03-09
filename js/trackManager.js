@@ -39,6 +39,10 @@ class TrackManager {
 
     // add styling
     this.playbackManager.updateScrollDivHeight();
+
+    const scrollDiv = this.playbackManager.scrollDiv;
+    const bounds = this.returnBounds();
+    scrollDiv.style['left'] = Math.round(clamp(scrollDiv.offsetLeft, bounds.left, bounds.right - scrollDiv.clientWidth)) +'px';
   }
 
   removeTrack(track) {
