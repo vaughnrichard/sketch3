@@ -33,7 +33,7 @@
     /* text-align: center; */
     display: grid;
 
-    grid-template-columns: 10% 70% 15% 5%;
+    grid-template-columns: 10% 60% 10% 15% 5%;
 
     grid-template-rows: repeat(auto-fill, 0.5in);
     /* grid-gap: 10px; */

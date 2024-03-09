@@ -103,11 +103,11 @@ class PlaybackManager {
     }
 
     // figure this out
-    // if (this.scrollDiv.offsetLeft === bounds.right + 10) {
-    //   this.paused = true;
-    //   this.playSongButton.textContent = "Play Song";
-    //   this.scrollDiv.style['left'] = String(bounds.left) + 'px';
-    // }
+    if ((this.scrollDiv.offsetLeft + this.scrollDiv.clientWidth) == Math.round(bounds.right)) {
+      this.paused = true;
+      this.playSongButton.textContent = "Play Song";
+      this.scrollDiv.style['left'] = String(bounds.left) + 'px';
+    }
   }
 
   // code adapted from https://stackoverflow.com/questions/39200994/how-to-play-a-specific-frequency-with-javascript

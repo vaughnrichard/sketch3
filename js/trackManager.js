@@ -109,6 +109,18 @@ class Track {
     const trackDOM = document.createElement('div');
     trackDOM.className = 'trackDOM'
 
+    // style track dom
+    const trackDomStyling = {
+      // 'max-width': '1200px',
+      'min-width': '200px',
+      // 'margin': 'auto'
+    }
+
+    // set the property values
+    for (const property in trackDomStyling) {
+      trackDOM.style[property] = trackDomStyling[property];
+    }
+
     // create the name
     const trackName = document.createElement('p');
     trackName.className = "trackP";
@@ -119,6 +131,31 @@ class Track {
     // create the musical element
     const musDiv = document.createElement('div');
     musDiv.className = 'music';
+
+    // create dropdown for instrument
+    const instrumentSelect = document.createElement('select');
+
+    const raw = document.createElement('option');
+    raw.innerText = 'Raw Audio';
+
+    const guitar = document.createElement('option');
+    guitar.innerText = 'Guitar';
+
+    const piano = document.createElement('option');
+    piano.innerText = 'Piano';
+
+    const drum = document.createElement('option');
+    drum.innerText = 'Drum';
+
+    instrumentSelect.appendChild(raw);
+    instrumentSelect.appendChild(guitar);
+    instrumentSelect.appendChild(piano);
+    instrumentSelect.appendChild(drum);
+
+    instrumentSelect.addEventListener('change', (e) => {
+        track.instrument = instrumentSelect.value;
+        console.log(track);
+    });
 
     // create segment for the other functions
     const miscFunctions = document.createElement('div');
@@ -172,6 +209,7 @@ class Track {
     // append elements to the trackDOM
     trackDOM.appendChild(trackName);
     trackDOM.appendChild(musDiv);
+    trackDOM.appendChild(instrumentSelect);
     trackDOM.appendChild(miscFunctions);
     trackDOM.appendChild(remTrack);
 
