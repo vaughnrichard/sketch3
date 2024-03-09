@@ -42,7 +42,7 @@ class TrackManager {
   }
 
   removeTrack(track) {
-    this.tracks.pop(track);
+    this.tracks.pop( track );
 
     this.tracks.forEach( (track) => {
       track.updateTrackPositions();
@@ -65,7 +65,9 @@ class TrackManager {
     if (musDivElements.length > 0) {
 
       const boundingRect = musDivElements[0].getBoundingClientRect();
-      const bottomVal = boundingRect['height'] * musDivElements.length + boundingRect['top'];
+      // need to multiply by tracks length, musDivElements was not making the scroll div update
+      // on removal correctly
+      const bottomVal = boundingRect['height'] * this.tracks.length + boundingRect['top'];
       const bounds = {
         left: boundingRect['left'],
         right: boundingRect['right'],
@@ -149,16 +151,16 @@ class Track {
     miscFunctions.appendChild(volume);
     miscFunctions.appendChild(recordButton);
 
-    //create remove segment
+    //create remove track
     const remTrack = document.createElement('button');
     // remTrack.innerHTML = '<button class="remTrack">Remove Track</button>';
     remTrack.textContent = 'Remove Track';
 
-    const tracksDiv = this.trackManager.tracksDiv;
+    const trackManager = this.trackManager;
     remTrack.addEventListener('click', function () {
-      if (tracksDiv.children.length > 1) {
-        
-        tracksDiv.removeChild(trackDOM);
+      if (trackManager.tracksDiv.children.length > 1) {
+        trackManager.removeTrack(track);
+        trackManager.tracksDiv.removeChild(trackDOM);
         
       }
     });
@@ -201,7 +203,6 @@ class Segment {
     const segDivStyling = {
       width: '100px',
       height: this.parentDom.clientHeight + 'px',
-      top: this.parentDom.offsetTop + 'px',
       left: this.parentDom.offsetLeft + 'px',
       position: 'absolute'
     };

@@ -113,6 +113,7 @@ class PlaybackManager {
   playNotes(context, notes) {
     for (let note = 0; note < notes.length; note++ ) {
       const curNote = notes[note];
+      console.log(curNote);
   
       const playbackManager = this;
 

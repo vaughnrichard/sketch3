@@ -79,16 +79,16 @@ class AudioProcessor {
   }
 
   generateFFTArrayAndGoToPDA(bufferArray, fn) {
-    const fftArray = new Array( bufferArray.length - 1 );
+    const fftArray = new Array( bufferArray.length );
 
     const processor = this;
     for (let i = 0; i < bufferArray.length; i++) {
       function addToArray(fft) {
-        fftArray[i - 1] = fft;
+        fftArray[i] = fft;
   
         let continuePDA = true;
-        for (let arr = 0; arr < bufferArray.length - 1; arr++) {
-          if (fftArray[arr] == undefined) { continuePDA = false; return; }
+        for (let arr = 0; arr < bufferArray.length; arr++) {
+          if (fftArray[arr] === undefined) { continuePDA = false; return; }
         }
   
         if (continuePDA) { 
