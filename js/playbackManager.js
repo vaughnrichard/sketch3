@@ -97,7 +97,9 @@ class PlaybackManager {
         const segment = track.segments[seg];
 
         if (this.scrollDiv.offsetLeft === segment.segDiv.offsetLeft ) {
-          this.playNotes( this.notePlayer, segment.notes );
+          if (track.instrument === 'Raw Audio' || track.instrument === null) {
+            this.playRawNotes( this.notePlayer, segment.notes );
+          }
         }
       }
     }
@@ -111,7 +113,7 @@ class PlaybackManager {
   }
 
   // code adapted from https://stackoverflow.com/questions/39200994/how-to-play-a-specific-frequency-with-javascript
-  playNotes(context, notes) {
+  playRawNotes(context, notes) {
     for (let note = 0; note < notes.length; note++ ) {
       const curNote = notes[note];
       console.log(curNote);
