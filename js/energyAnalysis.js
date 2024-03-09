@@ -66,23 +66,23 @@ class EnergyAnalyzer {
   
   
     // with the data cleaned, take a moving average
-    if (new_data.length < kernel_len) { throw new Error("Given sample was too short. Improve to remove this liability in the future. ")}
+    if (new_data.length < this.kernelLen) { throw new Error("Given sample was too short. Improve to remove this liability in the future. ")}
   
     // create a queue for the moving average
-    const ma_queue = new Array(kernel_len);
+    const ma_queue = new Array(this.kernelLen);
   
-    for (let i = 0; i < kernel_len; i++) {
+    for (let i = 0; i < this.kernelLen; i++) {
       ma_queue[i] = new_data[i]
     }
   
     // create two arrays to calculate the moving average and moving variance
-    const ma_array = new Array(new_data.length - kernel_len);
-    const var_array = new Array(new_data.length - kernel_len);
+    const ma_array = new Array(new_data.length - this.kernelLen);
+    const var_array = new Array(new_data.length - this.kernelLen);
   
     // loop to calcualte the ma / moving var
     for (let i = 0; i < ma_array.length; i++) {
       const sum = ma_queue.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-      const mean = sum / kernel_len;
+      const mean = sum / this.kernelLen;
   
       ma_array[i] = mean;
   
@@ -92,10 +92,10 @@ class EnergyAnalyzer {
         variance += (ma_queue[j] - mean) ** 2;
       }
   
-      var_array[i] = variance / kernel_len;
+      var_array[i] = variance / this.kernelLen;
   
       ma_queue.pop()
-      ma_queue.push(new_data[i + kernel_len])
+      ma_queue.push(new_data[i + this.kernelLen])
   
     }
   
@@ -119,9 +119,9 @@ class EnergyAnalyzer {
    * when a note is playing
    */
   detectFromClean(data) {
-    const ans = new Uint8Array(data.length + kernel_len)
+    const ans = new Uint8Array(data.length + this.kernelLen)
 
-    for (let i = 0; i < kernel_len ; i++) {
+    for (let i = 0; i < this.kernelLen ; i++) {
         ans[i] = 0;
     }
 
@@ -130,11 +130,11 @@ class EnergyAnalyzer {
     for (let i = 0; i < data.length; i++) {
         if ( data[i] == 0 ) {
             // inNote = false;
-            ans[i + (kernel_len - 1)] = 0;
+            ans[i + (this.kernelLen - 1)] = 0;
         }
 
         else {
-            ans[i + (kernel_len - 1)] = 1
+            ans[i + (this.kernelLen - 1)] = 1
         }
     }
 
@@ -142,7 +142,7 @@ class EnergyAnalyzer {
   }
 
   findNotes(parsedNoteArray) {
-    const notesArray = new Array(Note);
+    const notesArray = new Array();
 
     let inNote = false;
     let currentNote = null;
@@ -175,11 +175,12 @@ class EnergyAnalyzer {
     return notesArray;
   }
 
+  // analyzes data, returning an array of notes
   analyze(rawSoundData, type='ma') {
     this.rawSoundData = rawSoundData;
-    this.cleanedData = this.cleanData(rawSoundData);
-    this.noteBoolArray = this.detectFromClean(cleanedData);
-    this.notes = this.findNotes(notesBool);
+    this.cleanedData = this.cleanData(this.rawSoundData);
+    this.noteBoolArray = this.detectFromClean(this.cleanedData);
+    this.notes = this.findNotes(this.noteBoolArray);
 
     return this.notes;
   }

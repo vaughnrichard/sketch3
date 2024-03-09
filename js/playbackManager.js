@@ -14,6 +14,11 @@ class PlaybackManager {
     this.initScrollDiv();
 
     this.notePlayer = new(window.AudioContext || window.webkitAudioContext)();
+    this.gainNode = this.notePlayer.createGain();
+    this.gainNode.connect(this.notePlayer.destination);
+    this.volume = this.gainNode.gain.value;
+
+    this.gainNode.gain.value = 0.5;
 
     this.playbackSpeed = playbackSpeed; // ms per step
   }
@@ -68,6 +73,12 @@ class PlaybackManager {
     });
   }
 
+  updateScrollDivHeight() {
+    const bounds = this.trackManager.returnBounds();
+
+    this.scrollDiv.style['height'] = String(bounds.bottom - bounds.top) + 'px';
+  }
+
   moveScrollDiv(position) {
     const bounds = this.trackManager.returnBounds();
 
@@ -82,14 +93,18 @@ class PlaybackManager {
 
     for (let trackId = 0; trackId < this.trackManager.tracks.length; trackId++ ) {
       const track = this.trackManager.tracks[trackId];
-      for (let segment = 0; segment < track.segments.length; segment++) {
-        if (this.scrollDiv.offsetLeft === segment.start ) {
+      // console.log(track);
+      for (let seg = 0; seg < track.segments.length; seg++) {
+        const segment = track.segments[seg];
+        console.log("check eq", this.scrollDiv.offsetLeft, segment.parentDom.offsetLeft)
+
+        if (this.scrollDiv.offsetLeft === segment.segDiv.offsetLeft ) {
           this.playNotes( this.notePlayer, segment.notes );
         }
       }
     }
 
-    if (this.scrollDiv.offsetLeft == bounds.right) {
+    if (this.scrollDiv.offsetLeft === bounds.right - 10) {
       this.paused = true;
       this.playSongButton.textContent = "Play Song";
       this.scrollDiv.style['left'] = String(bounds.left) + 'px';
@@ -101,10 +116,12 @@ class PlaybackManager {
     for (let note = 0; note < notes.length; note++ ) {
       const curNote = notes[note];
   
+      const playbackManager = this;
+
       setTimeout(function () {
         const oscillator = context.createOscillator();
         oscillator.type = 'sine';
-        oscillator.connect(context.destination);
+        oscillator.connect(playbackManager.gainNode);
         oscillator.frequency.value = curNote.frequency;
         oscillator.start();
   
@@ -124,7 +141,5 @@ class PlaybackManager {
   }
 
 }
-
-// const playbackManager = new PlaybackManager();
 
 export { PlaybackManager }

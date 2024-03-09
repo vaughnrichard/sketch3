@@ -1,5 +1,8 @@
 /** File to Deal with FFT stuff */
-import {cleanData, returnNotesArray } from './energyAnalysis.js'
+// import {cleanData, returnNotesArray } from './energyAnalysis.js'
+import { EnergyAnalyzer } from "./energyAnalysis.js";
+
+const energyAnalyzer = new EnergyAnalyzer();
 
 const keepAtPageSize = false;
 // given an array and a canvas, this will draw the FFT over the canvas's dimensions
@@ -84,9 +87,8 @@ function graphTimeDomain(dummy, canvas) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  
-  const notesArray = returnNotesArray(timeDomainArray, 'ma');
-  const data_set = cleanData(timeDomainArray, 'ma');
+  const notesArray = energyAnalyzer.analyze(timeDomainArray, 'ma');
+  const data_set = energyAnalyzer.cleanedData;
 
   function graphMetric( dataset ) {
     const max = dataset.reduce((a, b) => Math.max(a, b));

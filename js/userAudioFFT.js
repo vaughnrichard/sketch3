@@ -1,7 +1,8 @@
 import { graphData, measureSoundEnergy, resetTimeDomain, timeDomainArray } from "./fft.js";
 import { audioSamplingRate, granularity } from "./parameters.js";
-import { Note, spliceAudioByNotes } from "./notes.js";
-import { returnNotesArray } from "./energyAnalysis.js";
+import { Note, AudioAnalyzer } from "./notes.js";
+// import { returnNotesArray } from "./energyAnalysis.js";
+import { EnergyAnalyzer } from "./energyAnalysis.js";
 import { lerp } from "./math.js";
 
 // maybe refer to this example :
@@ -18,8 +19,12 @@ const stopButton = document.getElementById('stopButton');
 let mediaRecorder;
 let audioContext;
 
-async function startRecording(musDiv) {
+async function startRecording(musDiv, segment=null) {
   if (recordingOn) { return; }
+
+  if (segment === null) {
+    console.log("need to pass in segment to function!");
+  }
 
   recordingOn = true;
 
@@ -57,13 +62,16 @@ async function startRecording(musDiv) {
     graphData(displayVis, null, false);
 
     // get notes
-    const notesArray = returnNotesArray(timeDomainArray);
+    const energyAnalyzer = new EnergyAnalyzer();
+    const notesArray = energyAnalyzer.analyze(timeDomainArray);
 
     // due to filereader, this now must be done by callback functions
-    spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext, function (notes) {
+    const audioAnalyzer = new AudioAnalyzer()
+    audioAnalyzer.spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext, function (notes) {
       // notes.shift()
       // console.log(notes);
       musDiv.dataset.notes = JSON.stringify(notes);
+      segment.addNotes(notes);
       
       
       const noteCanvas = document.createElement('canvas');

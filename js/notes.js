@@ -2,7 +2,7 @@
 import { indexToTime } from "./time.js";
 import { lerp } from "./math.js";
 import { audioSamplingRate } from "./parameters.js";
-import { generateNoteBufferArray, generateFFTArrayAndGoToPDA } from "./audioProcessing.js";
+import { AudioProcessor } from "./audioProcessing.js";
 import { EnergyAnalyzer } from "./energyAnalysis.js";
 
 // let FFT_ARR;
@@ -39,6 +39,7 @@ class AudioAnalyzer {
   constructor() {
     this.rawData = null;
     this.energyAnalyzer = new EnergyAnalyzer();
+    this.audioProcessor = new AudioProcessor();
 
     this.notes = [];
   }
@@ -47,21 +48,7 @@ class AudioAnalyzer {
     this.notes = this.energyAnalyzer.analyze(rawSoundData);
   }
 
-  spliceAudioByNotes() {
-
-  }
-
-  correctNotesTiming() {
-
-  }
-}
-
-function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callback) {
-
-    // create new context
-    // const ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-    //
+  spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callback) {
     let audioBuff = null;
 
     // pulle this from the GPT
@@ -85,14 +72,14 @@ function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callba
       fileReader.readAsArrayBuffer(blob);
     }
 
+    const audioAnalyzer = this;
     blobToAudioBuffer(audioBlob, context, function(buff) {
       audioBuff = buff;
 
-      notesArray = correctNotesTiming(buff.duration, notesArray, maxNoteIndex);
+      notesArray = audioAnalyzer.correctNotesTiming(buff.duration, notesArray, maxNoteIndex);
 
-      const buffArray = generateNoteBufferArray(notesArray, buff, context);
+      const buffArray = audioAnalyzer.audioProcessor.generateNoteBufferArray(notesArray, buff, context);
 
-    //   console.log(buffArray);
 
       function assignFrequencies(pitchArray) {
         // console.log("the arrays", notesArray, pitchArray);
@@ -104,21 +91,22 @@ function spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callba
         callback(notesArray);
       }
 
-      generateFFTArrayAndGoToPDA(buffArray, assignFrequencies); // pass next function to FFT Array
+      audioAnalyzer.audioProcessor.generateFFTArrayAndGoToPDA(buffArray, assignFrequencies); // pass next function to FFT Array
     });
 }
 
-function correctNotesTiming(bufferDuration, notesArray, maxNoteIndex) {
-  const maxNoteTime = maxNoteIndex * audioSamplingRate / 1000;
-  // console.log(timeDomainArray.length);
 
-  for (let i = 1; i < notesArray.length; i++) {
-    notesArray[i].startT = lerp(0, bufferDuration, 0, notesArray[i].startT, maxNoteTime);
-    notesArray[i].endT = lerp(0, bufferDuration, 0, notesArray[i].endT, maxNoteTime);
-  }
-
-  return notesArray;
-
+  correctNotesTiming(bufferDuration, notesArray, maxNoteIndex) {
+    const maxNoteTime = maxNoteIndex * audioSamplingRate / 1000;
+    // console.log(timeDomainArray.length);
+  
+    for (let i = 1; i < notesArray.length; i++) {
+      notesArray[i].startT = lerp(0, bufferDuration, 0, notesArray[i].startT, maxNoteTime);
+      notesArray[i].endT = lerp(0, bufferDuration, 0, notesArray[i].endT, maxNoteTime);
+    }
+  
+    return notesArray;
+    }
 }
 
-export { Note, spliceAudioByNotes }
+export { Note, AudioAnalyzer}
