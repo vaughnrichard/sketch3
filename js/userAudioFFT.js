@@ -54,9 +54,6 @@ async function startRecording(musDiv, segment=null) {
     clearInterval(intervalID);
 
     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-    // // console.log(audioBlob.arrayBuffer)
-    // const audioUrl = URL.createObjectURL(audioBlob);
-
 
     // graph the results
     graphData(displayVis, null, false);
@@ -65,13 +62,13 @@ async function startRecording(musDiv, segment=null) {
     const energyAnalyzer = new EnergyAnalyzer();
     const notesArray = energyAnalyzer.analyze(timeDomainArray);
 
+    console.log("notes array to be drawn!", notesArray.length);
+
     // due to filereader, this now must be done by callback functions
     const audioAnalyzer = new AudioAnalyzer()
     audioAnalyzer.spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext, function (notes) {
-      // notes.shift()
-      // console.log(notes);
-      musDiv.dataset.notes = JSON.stringify(notes);
       segment.addNotes(notes);
+      console.log("notes array to be drawn 2.0", notes.length);
       
       
       const noteCanvas = document.createElement('canvas');
@@ -84,8 +81,6 @@ async function startRecording(musDiv, segment=null) {
       musDiv.appendChild(noteCanvas);
 
       drawNoteCanvas(noteCanvas, notes);
-
-      // console.log(notes);
 
     });
   
@@ -113,8 +108,6 @@ function drawNoteCanvas(canvas, notes) {
   for (let note = 0; note < notes.length; note++ ) {
     const curNote = notes[note];
     const pixelBounds = [getPixel(curNote.start), getPixel(curNote.end)];
-
-    console.log(canvas.offsetHeight);
 
     ctx.fillRect(pixelBounds[0], 0, (pixelBounds[1] - pixelBounds[0]), canvas.height );
   }

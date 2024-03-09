@@ -93,7 +93,6 @@ class PlaybackManager {
 
     for (let trackId = 0; trackId < this.trackManager.tracks.length; trackId++ ) {
       const track = this.trackManager.tracks[trackId];
-      // console.log(track);
       for (let seg = 0; seg < track.segments.length; seg++) {
         const segment = track.segments[seg];
 

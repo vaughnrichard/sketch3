@@ -16,7 +16,6 @@ class AudioProcessor {
 
     for (let i = 0; i < notesArray.length; i++ ) {
       const note = notesArray[i];
-      console.log('currentNote', note);
       const noteBuffer = this.spliceAudio(note.startT, note.endT, buffer, context);
       audioArray.push(noteBuffer);
     }
@@ -29,14 +28,12 @@ class AudioProcessor {
     const startIndex = Math.floor(startTime * buffer.sampleRate);
     const endIndex = Math.min(Math.floor(endTime * buffer.sampleRate), buffer.length);
   
-    console.log(startTime, buffer.sampleRate)
     const bufferLength = endIndex - startIndex;
     if (bufferLength <= 0) {
       const dummyBuff = context.createBuffer(buffer.numberOfChannels, 1, buffer.sampleRate);
       return dummyBuff;
     }
   
-    console.log(bufferLength);
     const retBuffer = context.createBuffer(
       buffer.numberOfChannels,
       bufferLength,
@@ -91,7 +88,6 @@ class AudioProcessor {
   
         let continuePDA = true;
         for (let arr = 0; arr < bufferArray.length - 1; arr++) {
-          // console.log()
           if (fftArray[arr] == undefined) { continuePDA = false; return; }
         }
   
@@ -131,9 +127,6 @@ class AudioProcessor {
     let rms = 0
   
     fft.getFloatTimeDomainData( dataArray )
-  
-    // console.log("dataArray")
-    // console.log(dataArray)
   
     for (let i=0;i<SIZE;i++) {
         let val = dataArray[i]
@@ -221,77 +214,6 @@ function centsOffFromPitch( freq, note ) {
   return Math.floor(
       1200 * Math.log( freq / frequencyFromNoteNumber( note ))/Math.log(2)
   )
-}
-
-function getPitch(fft,sampleRate){
-
-  const bufferLength = fft.frequencyBinCount
-  const dataArray = new Float32Array(bufferLength)
-
-  const SIZE = dataArray.length
-  const MAX_SAMPLES = Math.floor(SIZE/2)
-  const MIN_SAMPLES = 0
-
-  let best_offset = -1
-  let best_correlation = 0
-  let correlations = new Array(MAX_SAMPLES)
-  let foundGoodCorrelation = false
-  let rms = 0
-
-  fft.getFloatTimeDomainData( dataArray )
-
-  // console.log("dataArray")
-  // console.log(dataArray)
-
-  for (let i=0;i<SIZE;i++) {
-      let val = dataArray[i]
-      rms += val*val
-  }
-  rms = Math.sqrt(rms/SIZE);
-  // if (rms<0.01) { // not enough signal
-  //   console.log('here');
-  //   return -1;
-  // }
-
-  let lastCorrelation=1
-  for (let offset = MIN_SAMPLES; offset < MAX_SAMPLES; offset++) {
-      let correlation = 0
-
-      for (let j=0; j<MAX_SAMPLES; j++) {
-          correlation += Math.abs((dataArray[j])-(dataArray[j+offset]))
-      }
-      correlation = 1 - (correlation/MAX_SAMPLES)
-      // store it, for the tweaking we need to do below.
-      correlations[offset] = correlation;
-
-      if ((correlation>0.9) && (correlation > lastCorrelation)) {
-          foundGoodCorrelation = true
-          if (correlation > best_correlation) {
-              best_correlation = correlation
-              best_offset = offset
-          }
-      } else if (foundGoodCorrelation) {
-      // short-circuit - we found a good correlation, then a bad one, so we'd
-      // just be seeing copies from here. Now we need to tweak the offset - by
-      // interpolating between the values to the left and right of the
-      // best offset, and shifting it a bit.  This is complex, and HACKY in
-      // this code (happy to take PRs!) - we need to do a curve fit on
-      // correlations[] around best_offset in order to better determine
-      // precise (anti-aliased) offset. we know best_offset >=1, since
-      // foundGoodCorrelation cannot go to true until the second pass
-      // (offset=1), and we can't drop into this clause until the following
-      // pass (else if).
-          let shift = (correlations[best_offset+1] -
-              correlations[best_offset-1])/correlations[best_offset]
-          return sampleRate/(best_offset+(8*shift))
-      }
-      lastCorrelation = correlation
-  }
-  if (best_correlation > 0.01) {
-    return sampleRate/best_offset
-  }
-  console.log(best_correlation)
-  return -1
 }
 
 export { AudioProcessor }

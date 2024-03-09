@@ -51,6 +51,8 @@ class AudioAnalyzer {
   spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callback) {
     let audioBuff = null;
 
+    console.log("splice NA len", notesArray.length);
+
     // pulle this from the GPT
     function blobToAudioBuffer(blob, context, callback) {
       const fileReader = new FileReader();
@@ -77,30 +79,29 @@ class AudioAnalyzer {
       audioBuff = buff;
 
       notesArray = audioAnalyzer.correctNotesTiming(buff.duration, notesArray, maxNoteIndex);
+      console.log("NA post correct timing", notesArray.length);
 
       const buffArray = audioAnalyzer.audioProcessor.generateNoteBufferArray(notesArray, buff, context);
 
 
+
       function assignFrequencies(pitchArray) {
-        // console.log("the arrays", notesArray, pitchArray);
-        notesArray.shift()
         for (let idx = 0; idx < notesArray.length; idx++) {
           notesArray[idx].frequency = pitchArray[idx];
         }
-        // console.log(notesArray)
         callback(notesArray);
       }
 
       audioAnalyzer.audioProcessor.generateFFTArrayAndGoToPDA(buffArray, assignFrequencies); // pass next function to FFT Array
     });
+
+
 }
 
 
   correctNotesTiming(bufferDuration, notesArray, maxNoteIndex) {
     const maxNoteTime = maxNoteIndex * audioSamplingRate / 1000;
-    // console.log(timeDomainArray.length);
   
-    console.log(notesArray);
     for (let i = 0; i < notesArray.length; i++) {
       notesArray[i].startT = lerp(0, bufferDuration, 0, notesArray[i].startT, maxNoteTime);
       notesArray[i].endT = lerp(0, bufferDuration, 0, notesArray[i].endT, maxNoteTime);

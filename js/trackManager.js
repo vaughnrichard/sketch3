@@ -65,7 +65,6 @@ class TrackManager {
     if (musDivElements.length > 0) {
 
       const boundingRect = musDivElements[0].getBoundingClientRect();
-      // console.log(boundingRect);
       const bottomVal = boundingRect['height'] * musDivElements.length + boundingRect['top'];
       const bounds = {
         left: boundingRect['left'],
@@ -123,7 +122,6 @@ class Track {
     volume.type = 'range';
 
     volume.addEventListener('change', (value) => {
-      // console.log(volume.value);
       const volumeAsPercent = (volume.value / 100) * 1;
       this.trackManager.playbackManager.gainNode.gain.value = volumeAsPercent;
     });
@@ -136,7 +134,6 @@ class Track {
 
         const newSegment = new Segment(track);
         track.segments.push(newSegment);
-        console.log(musDiv);
         const musicDiv = newSegment.addSegment(musDiv);
         recordButton.textContent = 'Stop Recording';
 

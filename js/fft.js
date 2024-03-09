@@ -44,13 +44,10 @@ var timeDomainArray = new Array();
 const energyVal = document.getElementById("energyDisplay");
 // Call this function periodically to measure the sound energy
 function measureSoundEnergy(analyzer) {
-  // console.log("inhere");
 
   const bufferLength = analyzer.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength); // can also do float data if desired
   analyzer.getByteFrequencyData(dataArray);
-
-  // console.log(dataArray);
 
   // Calculate the average energy in the frequency data
   let sum = 0;
@@ -60,7 +57,6 @@ function measureSoundEnergy(analyzer) {
 
   // timeDomainArray.push(sum);
   timeDomainArray.push(sum);
-  // console.log(timeDomainArray.length);
 
   energyVal.innerHTML = sum;
 }
@@ -98,8 +94,6 @@ function graphTimeDomain(dummy, canvas) {
       return val / max;
     })
 
-    // console.log(dataset)
-
     dataset = dataset.map( function (val) {
 
       return canvas.height * val;
@@ -108,7 +102,6 @@ function graphTimeDomain(dummy, canvas) {
     // initialized to 1 because the first entry is the note object
     // by my implementation
     let curNote = 1;
-    console.log(notesArray)
 
     for (let i = 0; i < dataset.length; i++) {
 
@@ -119,12 +112,10 @@ function graphTimeDomain(dummy, canvas) {
         }
 
         else if (i >= notesArray[curNote].start) {
-          // console.log('in here');
           ctx.fillStyle = 'red';
         }
       }
 
-      // console.log(dataset[i])
       ctx.fillRect(i * lineWidth , canvas.height, lineWidth, -dataset[i]);
     }
   }
