@@ -100,7 +100,8 @@ class AudioAnalyzer {
     const maxNoteTime = maxNoteIndex * audioSamplingRate / 1000;
     // console.log(timeDomainArray.length);
   
-    for (let i = 1; i < notesArray.length; i++) {
+    console.log(notesArray);
+    for (let i = 0; i < notesArray.length; i++) {
       notesArray[i].startT = lerp(0, bufferDuration, 0, notesArray[i].startT, maxNoteTime);
       notesArray[i].endT = lerp(0, bufferDuration, 0, notesArray[i].endT, maxNoteTime);
     }

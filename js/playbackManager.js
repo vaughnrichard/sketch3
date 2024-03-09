@@ -96,7 +96,6 @@ class PlaybackManager {
       // console.log(track);
       for (let seg = 0; seg < track.segments.length; seg++) {
         const segment = track.segments[seg];
-        console.log("check eq", this.scrollDiv.offsetLeft, segment.parentDom.offsetLeft)
 
         if (this.scrollDiv.offsetLeft === segment.segDiv.offsetLeft ) {
           this.playNotes( this.notePlayer, segment.notes );

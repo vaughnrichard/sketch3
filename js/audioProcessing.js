@@ -84,8 +84,7 @@ class AudioProcessor {
   generateFFTArrayAndGoToPDA(bufferArray, fn) {
     const fftArray = new Array( bufferArray.length - 1 );
 
-    console.log(bufferArray);
-  
+    const processor = this;
     for (let i = 0; i < bufferArray.length; i++) {
       function addToArray(fft) {
         fftArray[i - 1] = fft;
@@ -97,7 +96,7 @@ class AudioProcessor {
         }
   
         if (continuePDA) { 
-          const pitches = detectPitchOnArray(fftArray);
+          const pitches = processor.detectPitchOnArray(fftArray);
           fn(pitches);
         }
       }
@@ -186,105 +185,6 @@ class AudioProcessor {
     console.log(best_correlation)
     return -1
   }
-}
-
-// function spliceAudio(startTime, endTime, buffer, context) {
-
-//   const startIndex = Math.floor(startTime * buffer.sampleRate);
-//   const endIndex = Math.min(Math.floor(endTime * buffer.sampleRate), buffer.length);
-//   // console.log(startTime);
-//   // console.log(endTime);
-
-//   const bufferLength = endIndex - startIndex;
-//   if (bufferLength <= 0) {
-//     const dummyBuff = context.createBuffer(buffer.numberOfChannels, 1, buffer.sampleRate);
-//     return dummyBuff;
-//   }
-
-//   console.log(bufferLength);
-//   const retBuffer = context.createBuffer(
-//     buffer.numberOfChannels,
-//     bufferLength,
-//      buffer.sampleRate
-//   );
-
-//   // Copy data from the original buffer to the new buffer
-//   for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-//     const channelData = buffer.getChannelData(channel);
-//     const newChannelData = retBuffer.getChannelData(channel);
-
-//     for (let i = 0; i < retBuffer.length; i++) {
-//       newChannelData[i] = channelData[startIndex + i];
-//     }
-//   }
-
-//   return retBuffer;
-// }
-
-function generateFFTFromBuffer(buffer, fn) {
-  // const offlineContext = new OfflineAudioContext();
-  // const offlineContext = new webkitOfflineAudioContext();
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-  const analyzer = audioCtx.createAnalyser();
-  analyzer.fftSize = granularity;
-  const source = audioCtx.createBufferSource();
-  source.buffer = buffer;
-
-  source.connect(analyzer);
-  // analyzer.connect(context.destination);
-
-  // source.connect(audioCtx.destination);
-  const dataArray = new Uint8Array( analyzer.frequencyBinCount );
-
-
-  function ended(e) {
-    // analyzer.getByteFrequencyData(dataArray);
-
-    // import to close the context, for some reason!
-    audioCtx.close();
-    fn(analyzer);
-  };
-
-  source.onended = ended;
-
-  source.start();
-}
-
-function generateFFTArrayAndGoToPDA(bufferArray, fn) {
-  const fftArray = new Array( bufferArray.length - 1 );
-
-  for (let i = 1; i < bufferArray.length; i++) {
-    function addToArray(fft) {
-      fftArray[i - 1] = fft;
-
-      let continuePDA = true;
-      for (let arr = 0; arr < bufferArray.length - 1; arr++) {
-        // console.log()
-        if (fftArray[arr] == undefined) { continuePDA = false; return; }
-      }
-
-      if (continuePDA) { 
-        const pitches = detectPitchOnArray(fftArray);
-        // console.log(pitches)
-        fn(pitches);
-      }
-    }
-
-    generateFFTFromBuffer( bufferArray[i], addToArray );
-  }
-}
-
-function detectPitchOnArray(FFT_Array) {
-  const notePitchArray = new Array( FFT_Array.length );
-
-  for (let fft_index = 0; fft_index < FFT_Array.length; fft_index++ ) {
-    console.log("fft", FFT_Array[fft_index]);
-    notePitchArray[fft_index] = getPitch( FFT_Array[fft_index], FFT_Array[fft_index].context.sampleRate );
-  }
-
-  return notePitchArray;
-  
 }
 
 
