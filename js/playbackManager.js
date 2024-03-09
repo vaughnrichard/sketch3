@@ -82,7 +82,7 @@ class PlaybackManager {
   moveScrollDiv(position) {
     const bounds = this.trackManager.returnBounds();
 
-    this.scrollDiv.style['left'] = Math.round( clamp(position, bounds.left , bounds.right) ) +'px';
+    this.scrollDiv.style['left'] = Math.round( clamp(position, bounds.left , bounds.right - this.scrollDiv.clientWidth) ) +'px';
   }
 
   updateScroll() {
