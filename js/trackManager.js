@@ -156,8 +156,6 @@ class Track {
         track.instrument = instrumentSelect.value;
         console.log(track);
     });
-    instrumentSelect.value = 'Raw Audio';
-
 
     // create segment for the other functions
     const miscFunctions = document.createElement('div');
