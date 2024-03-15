@@ -51,8 +51,6 @@ class AudioAnalyzer {
   spliceAudioByNotes(audioBlob, notesArray, maxNoteIndex, context, callback) {
     let audioBuff = null;
 
-    console.log("splice NA len", notesArray.length);
-
     // pulle this from the GPT
     function blobToAudioBuffer(blob, context, callback) {
       const fileReader = new FileReader();
@@ -79,7 +77,6 @@ class AudioAnalyzer {
       audioBuff = buff;
 
       notesArray = audioAnalyzer.correctNotesTiming(buff.duration, notesArray, maxNoteIndex);
-      console.log("NA post correct timing", notesArray.length);
 
       const buffArray = audioAnalyzer.audioProcessor.generateNoteBufferArray(notesArray, buff, context);
 

@@ -99,9 +99,7 @@ function graphTimeDomain(dummy, canvas) {
       return canvas.height * val;
     })
 
-    // initialized to 1 because the first entry is the note object
-    // by my implementation
-    let curNote = 1;
+    let curNote = 0;
 
     for (let i = 0; i < dataset.length; i++) {
 

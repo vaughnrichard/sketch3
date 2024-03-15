@@ -2,6 +2,7 @@
 
 // imports
 import { clamp } from "./math.js";
+import { ToneInstrument } from "./instrument.js";
 
 class PlaybackManager {
   constructor(trackManager, playbackSpeed=16.67) {
@@ -21,6 +22,8 @@ class PlaybackManager {
     this.gainNode.gain.value = 0.5;
 
     this.playbackSpeed = playbackSpeed; // ms per step
+
+    this.toneInstrument = new ToneInstrument();
   }
 
   attachTrackManager(trackManager) {
@@ -99,6 +102,8 @@ class PlaybackManager {
         if (this.scrollDiv.offsetLeft === segment.segDiv.offsetLeft ) {
           if (track.instrument === 'Raw Audio' || track.instrument === null) {
             this.playRawNotes( this.notePlayer, segment.notes );
+          } else { // an instrument should be played
+            this.playInstrumentNotes(segment.notes);
           }
         }
       }
@@ -133,6 +138,15 @@ class PlaybackManager {
       }, curNote.startT * 1000);
   
     }
+  }
+
+  playInstrumentNotes(notes) {
+
+    for (let noteIdx = 0; noteIdx < notes.length; noteIdx++) {
+      const note = notes[noteIdx];
+      this.toneInstrument.playInstrument(note);
+    }
+
   }
 
   playLoop() {

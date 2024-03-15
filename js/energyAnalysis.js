@@ -182,9 +182,6 @@ class EnergyAnalyzer {
     this.noteBoolArray = this.detectFromClean(this.cleanedData);
     this.notes = this.findNotes(this.noteBoolArray);
 
-    console.log("cleaned data", this.cleanedData);
-    console.log("noteboolarray", this.noteBoolArray);
-    console.log("notes", this.notes);
 
     return this.notes;
   }

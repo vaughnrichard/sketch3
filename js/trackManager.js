@@ -155,6 +155,7 @@ class Track {
     instrumentSelect.addEventListener('change', (e) => {
         track.instrument = instrumentSelect.value;
         console.log(track);
+        track.trackManager.playbackManager.toneInstrument.changeInstrument(instrumentSelect.value);
     });
 
     // create segment for the other functions

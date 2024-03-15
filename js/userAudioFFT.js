@@ -62,13 +62,11 @@ async function startRecording(musDiv, segment=null) {
     const energyAnalyzer = new EnergyAnalyzer();
     const notesArray = energyAnalyzer.analyze(timeDomainArray);
 
-    console.log("notes array to be drawn!", notesArray.length);
 
     // due to filereader, this now must be done by callback functions
     const audioAnalyzer = new AudioAnalyzer()
     audioAnalyzer.spliceAudioByNotes(audioBlob, notesArray, timeDomainArray.length, audioContext, function (notes) {
       segment.addNotes(notes);
-      console.log("notes array to be drawn 2.0", notes.length);
       
       
       const noteCanvas = document.createElement('canvas');
