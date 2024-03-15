@@ -224,6 +224,7 @@ class Track {
   updateTrackPositions() {
     // I think mostly everything is good so just move all the segdivs up
     this.segments.forEach( (segment) => {
+      console.log(segment);
       segment.style.top = '0px';
     } );
   }
