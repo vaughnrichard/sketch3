@@ -148,7 +148,7 @@ class Track {
     piano.innerText = 'Piano';
 
     const drum = document.createElement('option');
-    drum.innerText = 'Drum';
+    drum.innerText = 'Drums';
 
     instrumentSelect.appendChild(raw);
     instrumentSelect.appendChild(guitar);
@@ -170,7 +170,7 @@ class Track {
 
     volume.addEventListener('change', (value) => {
       const volumeAsPercent = (volume.value / 100) * 1;
-      this.trackManager.playbackManager.gainNode.gain.value = volumeAsPercent;
+      track.toneInstrument.changeVolume(volumeAsPercent);
     });
 
     const recordButton = document.createElement('button');

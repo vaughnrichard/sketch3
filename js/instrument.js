@@ -3,13 +3,25 @@
 // adapted some of this from chatGPT
 class ToneInstrument {
   constructor() {
-    this.currentInstrument = null;
+    this.gainNode = new Tone.Gain(0.5).toDestination();
 
-    this.piano = new Piano();
+    this.piano = new Piano(this.gainNode);
 
-    this.drum = new Drums();
+    this.drum = new Drums(this.gainNode);
 
-    this.guitar = new Guitar();
+    this.guitar = new Guitar(this.gainNode);
+
+    this.synth = new Synth(this.gainNode);
+
+    this.currentInstrument = this.synth;
+  }
+
+  changeVolume(val) {
+    console.log('change');
+    this.gainNode.gain.set( {
+      value: val
+    } );
+    console.log(this.gainNode.gain);
   }
 
   changeInstrument(name) {
@@ -21,8 +33,12 @@ class ToneInstrument {
       this.currentInstrument = this.piano;
     }
 
-    else if (name === 'Drum') {
+    else if (name === 'Drums') {
       this.currentInstrument = this.drum;
+    }
+
+    else if (name === 'Raw Audio') {
+      this.currentInstrument = this.synth;
     }
 
     else {
@@ -36,8 +52,23 @@ class ToneInstrument {
   }
 }
 
+class Synth {
+  constructor(gainNode) {
+    this.synth = new Tone.Synth().connect(gainNode);
+
+    this.gainNode = gainNode;
+  }
+
+  play(note) {
+    const start = note.startT;
+    const duration = note.endT - note.startT;
+
+    this.synth.triggerAttackRelease( note.frequency, duration, Tone.now() + start );
+  }
+}
+
 class Guitar {
-  constructor() {
+  constructor(gainNode) {
     this.sampler = new Tone.Sampler({
       urls: {
         "A4": "guitar_Astring.mp3",
@@ -48,7 +79,9 @@ class Guitar {
         "E4": "guitar_highEstring.mp3"
       },
       baseUrl: "https://tonejs.github.io/audio/berklee/", // Base URL for all samples
-    }).toDestination();
+    }).connect(gainNode);
+
+    this.gainNode = gainNode;
   }
 
   play(note) {
@@ -60,7 +93,7 @@ class Guitar {
 }
 
 class Piano {
-  constructor() {
+  constructor(gainNode) {
     this.sampler = new Tone.Sampler({
       urls: {
         "C2": "C2.mp3",
@@ -74,7 +107,9 @@ class Piano {
         "G2": "G2.mp3"
       },
       baseUrl: "https://tonejs.github.io/audio/casio/", // Base URL for all samples
-    }).toDestination();
+    }).connect(gainNode);
+
+    this.gainNode = gainNode;
   }
 
   play(note) {
@@ -86,7 +121,7 @@ class Piano {
 }
 
 class Drums {
-  constructor() {
+  constructor(gainNode) {
     this.sampler = new Tone.Sampler({
       urls: {
         "C4": "hihat.mp3",
@@ -97,7 +132,9 @@ class Drums {
         "C2": "tom3.mp3"
       },
       baseUrl: "https://tonejs.github.io/audio/drum-samples/acoustic-kit/", // Base URL for all samples
-    }).toDestination();
+    }).connect(gainNode);
+
+    this.gainNode = gainNode;
   }
 
   play(note) {

@@ -66,6 +66,7 @@ class PlaybackManager {
     const playbackManager = this;
     const playButton = this.playSongButton;
     playButton.addEventListener('click', () => {
+      Tone.start();
       playbackManager.paused = !playbackManager.paused;
 
       playButton.textContent = (playbackManager.paused) ? "Play Song" : "Pause Song" ;
@@ -98,11 +99,7 @@ class PlaybackManager {
         const segment = track.segments[seg];
 
         if (this.scrollDiv.offsetLeft === segment.segDiv.offsetLeft ) {
-          if (track.instrument === 'Raw Audio' || track.instrument === null) {
-            this.playRawNotes( this.notePlayer, segment.notes );
-          } else { // an instrument should be played
-            track.playInstrumentNotes(segment.notes);
-          }
+          track.playInstrumentNotes(segment.notes);
         }
       }
     }
