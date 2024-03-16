@@ -3,6 +3,7 @@ import { Note } from "./notes.js";
 import { clamp } from "./math.js";
 import { startRecording, makeButtonStopRecording } from "./userAudioFFT.js";
 import { PlaybackManager } from "./playbackManager.js";
+import { ToneInstrument } from "./instrument.js";
 
 class TrackManager {
   constructor() {
@@ -46,6 +47,7 @@ class TrackManager {
   }
 
   removeTrack(track) {
+    this.tracksDiv.removeChild( track.dom );
     this.tracks.pop( track );
 
     this.tracks.forEach( (track) => {
@@ -99,6 +101,7 @@ class Track {
     this.instrument = null;
     this.dom = this.addDefTrack();
     this.segments = []; // array of segments
+    this.toneInstrument = new ToneInstrument();
   }
 
   /* This function adds a new default track to the tracks Div */
@@ -155,7 +158,7 @@ class Track {
     instrumentSelect.addEventListener('change', (e) => {
         track.instrument = instrumentSelect.value;
         console.log(track);
-        track.trackManager.playbackManager.toneInstrument.changeInstrument(instrumentSelect.value);
+        track.toneInstrument.changeInstrument(instrumentSelect.value);
     });
 
     // create segment for the other functions
@@ -224,9 +227,17 @@ class Track {
   updateTrackPositions() {
     // I think mostly everything is good so just move all the segdivs up
     this.segments.forEach( (segment) => {
-      console.log(segment);
-      segment.style.top = '0px';
+      segment.segDiv.style.top = '0px';
     } );
+  }
+
+  playInstrumentNotes(notes) {
+
+    for (let noteIdx = 0; noteIdx < notes.length; noteIdx++) {
+      const note = notes[noteIdx];
+      this.toneInstrument.playInstrument(note);
+    }
+
   }
 }
 

@@ -22,8 +22,6 @@ class PlaybackManager {
     this.gainNode.gain.value = 0.5;
 
     this.playbackSpeed = playbackSpeed; // ms per step
-
-    this.toneInstrument = new ToneInstrument();
   }
 
   attachTrackManager(trackManager) {
@@ -103,7 +101,7 @@ class PlaybackManager {
           if (track.instrument === 'Raw Audio' || track.instrument === null) {
             this.playRawNotes( this.notePlayer, segment.notes );
           } else { // an instrument should be played
-            this.playInstrumentNotes(segment.notes);
+            track.playInstrumentNotes(segment.notes);
           }
         }
       }
@@ -138,15 +136,6 @@ class PlaybackManager {
       }, curNote.startT * 1000);
   
     }
-  }
-
-  playInstrumentNotes(notes) {
-
-    for (let noteIdx = 0; noteIdx < notes.length; noteIdx++) {
-      const note = notes[noteIdx];
-      this.toneInstrument.playInstrument(note);
-    }
-
   }
 
   playLoop() {
