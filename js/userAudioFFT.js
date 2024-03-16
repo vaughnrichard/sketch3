@@ -129,13 +129,13 @@ function makeButtonStopRecording(button) {
   });
 }
 
-function initUserAudio() {
-  recordAudio.addEventListener('click', startRecording);
+// function initUserAudio() {
+//   recordAudio.addEventListener('click', startRecording);
 
-  stopButton.addEventListener('click', () => {
-    mediaRecorder.stop();
-    audioContext.close();
-  });
-}
+//   stopButton.addEventListener('click', () => {
+//     mediaRecorder.stop();
+//     audioContext.close();
+//   });
+// }
 
-export { initUserAudio, startRecording, makeButtonStopRecording }
+export { startRecording, makeButtonStopRecording }
